@@ -11,8 +11,11 @@ from datetime import datetime
 with open('config.json', 'r') as f:
     config = json.load(f)
 
-# Initialize bot
-bot = Bot(token=config['api_key'])
+# Initialize both bots
+main_bot = Bot(token=config['api_key'])
+manager_bot = Bot(token=config['manager_bot_token'])
+
+# Create single dispatcher for both bots
 dp = Dispatcher()
 
 # States
@@ -61,7 +64,7 @@ async def show_delivery_options(callback: types.CallbackQuery, state: FSMContext
         print(f"Failed to edit message: {e}")
         # Optionally, send a new message instead
         await callback.message.answer(
-            "Выберите способ п��учения:",
+            "Выберите способ пучения:",
             reply_markup=reply_markup
         )
     
@@ -173,64 +176,62 @@ async def process_collection(callback: types.CallbackQuery, state: FSMContext):
 
 @dp.callback_query(lambda c: c.data.startswith('aroma_'))
 async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
-    user_data = await state.get_data()
-    
-    delivery_type = user_data.get('delivery_type', 'pickup')
-    location_info = ""
-    if delivery_type == "pickup":
-        location_key = user_data['location']
-        location_info = f"📍 Магазин: {config['locations'][location_key]['name']}"
-    else:
-        location_info = f"📍 Адрес доставки: {user_data['delivery_address']}"
-    
-    # Get the single manager ID
-    manager_id = config['manager_id']
-    
-    collection = next(c for c in config["catalog"]["collections"] 
-                     if c["id"] == user_data['collection'])
-    aroma = next(item for item in collection["items"] 
-                 if str(item["id"]) == callback.data.replace('aroma_', ''))
-    
-    current_time = datetime.now().strftime("%d.%m.%Y %H:%M")
-    username = callback.from_user.username or "Без username"
-    user_fullname = callback.from_user.full_name or "Без имени"
-    
-    customer_message = (
-        f"✅ Отлично! Ваш выбор:\n\n"
-        f"{location_info}\n"
-        f"📦 Коллекция: {collection['name']}\n"
-        f"🎨 Вкус: {aroma['name']}\n\n"
-        f"{'Ожидайте, продавец свяжется с вами для уточнения стоимости доставки!' if delivery_type == 'delivery' else 'Ждем вас в магазине!'}\n\n"
-        f"Для нового заказа используйте команду /start"
-    )
-    
-    order_id = str(abs(hash(current_time + username)))[-8:]
-    manager_message = (
-        f"🔔 #{order_id}\n"
-        f"━━━━━━━━━━━━━━━\n"
-        f"📅 ДАТА: {current_time}\n"
-        f"👤 КЛИЕНТ:\n"
-        f"   • TG: @{username}\n"
-        f"   • Имя: {user_fullname}\n\n"
-        f"🛍 ЗАКАЗ:\n"
-        f"   • Серия: {collection['name']}\n"
-        f"   • Вкус: {aroma['name']}\n"
-        f"📍 ПОЛУЧЕНИЕ:\n"
-        f"   • Тип: {'🚚 Доставка' if delivery_type == 'delivery' else '🏪 Самовывоз'}\n"
-        f"   • Адрес: {location_info.split(': ')[1]}\n"
-        f"━━━━━━━━━━━━━━━"
-    )
-    
-    await callback.message.delete()
-    await callback.message.answer(customer_message)
-    
-    # Send notification to the single manager
-    try:
-        await bot.send_message(manager_id, manager_message)
-    except Exception as e:
-        print(f"Failed to send notification to manager: {e}")
-    
-    await state.clear()
+    if callback.bot.id == main_bot.id:
+        user_data = await state.get_data()
+        
+        delivery_type = user_data.get('delivery_type', 'pickup')
+        location_info = ""
+        if delivery_type == "pickup":
+            location_key = user_data['location']
+            location_info = f"📍 Магазин: {config['locations'][location_key]['name']}"
+        else:
+            location_info = f"📍 Адрес доставки: {user_data['delivery_address']}"
+        
+        collection = next(c for c in config["catalog"]["collections"] 
+                         if c["id"] == user_data['collection'])
+        aroma = next(item for item in collection["items"] 
+                     if str(item["id"]) == callback.data.replace('aroma_', ''))
+        
+        current_time = datetime.now().strftime("%d.%m.%Y %H:%M")
+        username = callback.from_user.username or "Без username"
+        user_fullname = callback.from_user.full_name or "Без имени"
+        
+        customer_message = (
+            f"✅ Отлично! Ваш выбор:\n\n"
+            f"{location_info}\n"
+            f"📦 Коллекция: {collection['name']}\n"
+            f"🎨 Вкус: {aroma['name']}\n\n"
+            f"{'Ожидайте, продавец свяжется с вами для уточнения стоимости доставки!' if delivery_type == 'delivery' else 'Ждем вас в магазине!'}\n\n"
+            f"Для нового заказа используйте команду /start"
+        )
+        
+        order_id = str(abs(hash(current_time + username)))[-8:]
+        manager_message = (
+            f"🔔 #{order_id}\n"
+            f"━━━━━━━━━━━━━━━\n"
+            f"📅 ДАТА: {current_time}\n"
+            f"👤 КЛИЕНТ:\n"
+            f"   • TG: @{username}\n"
+            f"   • Имя: {user_fullname}\n\n"
+            f"🛍 ЗАКАЗ:\n"
+            f"   • Серия: {collection['name']}\n"
+            f"   • Вкус: {aroma['name']}\n"
+            f"📍 ПОЛУЧЕНИЕ:\n"
+            f"   • Тип: {'🚚 Доставка' if delivery_type == 'delivery' else '🏪 Самовывоз'}\n"
+            f"   • Адрес: {location_info.split(': ')[1]}\n"
+            f"━━━━━━━━━━━━━━━"
+        )
+        
+        await callback.message.delete()
+        await callback.message.answer(customer_message)
+        
+        # Send notification to the manager through manager bot
+        try:
+            await manager_bot.send_message(config['manager_id'], manager_message)
+        except Exception as e:
+            print(f"Failed to send notification to manager: {e}")
+        
+        await state.clear()
 
 @dp.callback_query(lambda c: c.data == "back")
 async def process_back(callback: types.CallbackQuery, state: FSMContext):
@@ -254,8 +255,13 @@ async def process_back(callback: types.CallbackQuery, state: FSMContext):
         new_callback = callback.model_copy(update={'data': f"loc_{user_data['location']}"})
         await process_location(new_callback, state)
 
+# Main function to run both bots
 async def main():
-    await dp.start_polling(bot)
+    # Start both bots
+    await asyncio.gather(
+        dp.start_polling(main_bot),
+        dp.start_polling(manager_bot)
+    )
 
 if __name__ == '__main__':
     asyncio.run(main())
