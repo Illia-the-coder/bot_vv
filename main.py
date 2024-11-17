@@ -61,7 +61,7 @@ async def show_delivery_options(callback: types.CallbackQuery, state: FSMContext
         print(f"Failed to edit message: {e}")
         # Optionally, send a new message instead
         await callback.message.answer(
-            "Выберите способ плучения:",
+            "Выберите способ п��учения:",
             reply_markup=reply_markup
         )
     
@@ -180,11 +180,11 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
     if delivery_type == "pickup":
         location_key = user_data['location']
         location_info = f"📍 Магазин: {config['locations'][location_key]['name']}"
-        managers = config['locations'][location_key]['managers']
     else:
         location_info = f"📍 Адрес доставки: {user_data['delivery_address']}"
-        managers = [manager for loc in config['locations'].values() for manager in loc['managers']]
-    managers = set(managers)
+    
+    # Get the single manager ID
+    manager_id = config['manager_id']
     
     collection = next(c for c in config["catalog"]["collections"] 
                      if c["id"] == user_data['collection'])
@@ -224,11 +224,11 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.delete()
     await callback.message.answer(customer_message)
     
-    for manager_id in managers:
-        try:
-            await bot.send_message(manager_id, manager_message)
-        except Exception as e:
-            print(f"Failed to send notification to manager {manager_id}: {e}")
+    # Send notification to the single manager
+    try:
+        await bot.send_message(manager_id, manager_message)
+    except Exception as e:
+        print(f"Failed to send notification to manager: {e}")
     
     await state.clear()
 

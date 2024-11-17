@@ -1,29 +1,24 @@
 {
     "api_key": "7358078697:AAF5QHan0x8jFhTskoWT7qzh1Tg-R4-sWZE",
+    "manager_id": 5344423873,
     "locations": {
         "stephansplatz": {
-            "name": "Stephansplatz",
-            "managers": [1245273083]
+            "name": "Stephansplatz"
         },
         "praterstern": {
-            "name": "Praterstern",
-            "managers": [1245273083]
+            "name": "Praterstern"
         },
         "wien_mitte": {
-            "name": "Wien Mitte",
-            "managers": [1245273083]
+            "name": "Wien Mitte"
         },
         "hauptbahnhof": {
-            "name": "Hauptbahnhof",
-            "managers": [1245273083]
+            "name": "Hauptbahnhof"
         },
         "westbahnhof": {
-            "name": "Westbahnhof",
-            "managers": [1245273083]
+            "name": "Westbahnhof"
         },
         "mariahilferstrasse": {
-            "name": "Mariahilferstrasse",
-            "managers": [1245273083]
+            "name": "Mariahilferstrasse"
         }
     },
     "catalog": {
