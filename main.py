@@ -131,11 +131,23 @@ async def process_location(callback: types.CallbackQuery, state: FSMContext):
     keyboard.append(create_back_button())
     reply_markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
     
-    await callback.message.edit_text(
-        text=f"📍 Выбранный магазин: {config['locations'][location_key]['name']}\n\n"
-             f"Выберите коллекцию:",
-        reply_markup=reply_markup
+    message_text = (
+        f"📍 Выбранный магазин: {config['locations'][location_key]['name']}\n\n"
+        f"Выберите коллекцию:"
     )
+    
+    try:
+        await callback.message.edit_text(
+            text=message_text,
+            reply_markup=reply_markup
+        )
+    except Exception:
+        # If editing fails, send a new message
+        await callback.message.answer(
+            text=message_text,
+            reply_markup=reply_markup
+        )
+    
     await state.set_state(OrderStates.choosing_collection)
 
 @dp.callback_query(lambda c: c.data.startswith('col_'))
@@ -245,8 +257,7 @@ async def process_back(callback: types.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
     user_data = await state.get_data()
     
-    await callback.message.delete()
-    
+    # Create a new message instead of editing
     if current_state == OrderStates.choosing_location:
         new_callback = callback.model_copy(update={'data': "start_shopping"})
         await show_delivery_options(new_callback, state)
@@ -258,9 +269,14 @@ async def process_back(callback: types.CallbackQuery, state: FSMContext):
             new_callback = callback.model_copy(update={'data': "pickup"})
             await show_locations(new_callback, state)
     elif current_state == OrderStates.choosing_aroma:
-        user_data = await state.get_data()
         new_callback = callback.model_copy(update={'data': f"loc_{user_data['location']}"})
         await process_location(new_callback, state)
+    
+    # Try to delete the original message, but don't raise an error if it fails
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
 
 # Main function to run both bots
 async def main():
