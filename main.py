@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, FSInputFile
 from datetime import datetime
-
+import os
 # Load configuration
 with open('config.json', 'r') as f:
     config = json.load(f)
@@ -163,15 +163,22 @@ async def process_collection(callback: types.CallbackQuery, state: FSMContext):
         location_info = f"📍 Магазин: {config['locations'][user_data['location']]['name']}"
     else:
         location_info = f"📍 Адрес доставки: {user_data['delivery_address']}"
-
-    photo = FSInputFile(f'images/{collection["id"]}.jpeg')
-    await callback.message.answer_photo(
-        photo=photo,
-        caption=f"{location_info}\n"
-                f"📦 Коллекция: {collection['name']}\n\n"
-                f"Выберите вкус:",
-        reply_markup=reply_markup
-    )
+    if os.path.exists(f'images/{collection["id"]}.jpeg'):
+        photo = FSInputFile(f'images/{collection["id"]}.jpeg')
+        await callback.message.answer_photo(
+            photo=photo,
+            caption=f"{location_info}\n"
+                    f"📦 Коллекция: {collection['name']}\n\n"
+                    f"Выберите вкус:",
+            reply_markup=reply_markup
+        )
+    else:
+        await callback.message.answer(
+            text=f"{location_info}\n"
+                 f"📦 Коллекция: {collection['name']}\n\n"
+                 f"Выберите вкус:",
+            reply_markup=reply_markup
+        )
     await state.set_state(OrderStates.choosing_aroma)
 
 @dp.callback_query(lambda c: c.data.startswith('aroma_'))

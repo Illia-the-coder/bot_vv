@@ -25,160 +25,66 @@
     "catalog": {
         "collections": [
             {
-                "id": "elf_bar_2500_5",
-                "name": "Elf Bar 2500 5%",
+                "id": "elf_bar_15000",
+                "name": "Elf Bar 15000",
                 "items": [
-                    {"id": 1, "name": "Strawberry Ice", "code": "742"},
-                    {"id": 2, "name": "BlueRazz Lemonade", "code": "1409"},
-                    {"id": 3, "name": "Mango Peach Watermelon", "code": "1492"},
-                    {"id": 4, "name": "Juicy Peach", "code": "1553"},
-                    {"id": 5, "name": "Pink Lemonade", "code": "861"},
-                    {"id": 6, "name": "Banana Milk", "code": "1643"},
-                    {"id": 7, "name": "Coconut Melon", "code": "1309"},
-                    {"id": 8, "name": "Grape Energy", "code": "1406"},
-                    {"id": 9, "name": "Peach Mango Guava", "code": "1847"},
-                    {"id": 10, "name": "Sour Apple", "code": "1623"}
-                ],
-                "photo_url": "https://link-to-elf-bar-2500-photo.com/image.jpg"
-            },
-            {
-                "id": "elf_bar_3600",
-                "name": "Elf Bar 3600",
-                "items": [
-                    {"id": 11, "name": "Kiwi Passionfruit Guava"},
-                    {"id": 12, "name": "Pineapple Mango Orange"},
-                    {"id": 13, "name": "Berry Peach"},
-                    {"id": 14, "name": "Watermelon Lemon"},
-                    {"id": 15, "name": "Banana Milk"},
-                    {"id": 16, "name": "Blue Razz Lemonade"},
-                    {"id": 17, "name": "Strawberry Kiwi"},
-                    {"id": 18, "name": "Mango Peach Watermelon"},
-                    {"id": 19, "name": "Sour Apple"},
-                    {"id": 20, "name": "Jelly Bear"}
-                ],
-                "photo_url": "https://link-to-elf-bar-3600-photo.com/image.jpg"
-            },
-            {
-                "id": "elf_bar_bc_5000",
-                "name": "ELF BAR BC 5000",
-                "items": [
-                    {"id": 21, "name": "Blue Razz Ice"},
-                    {"id": 22, "name": "Crazi Berry"},
-                    {"id": 23, "name": "Kiwi Passionfruit Guava"},
-                    {"id": 24, "name": "Lemon Mint"},
-                    {"id": 25, "name": "Peach Ice"},
-                    {"id": 26, "name": "Peach Mango Watermelon"},
-                    {"id": 27, "name": "Pineapple Coconut Ice"},
-                    {"id": 28, "name": "Sakura Grape"},
-                    {"id": 29, "name": "Sour Apple"},
-                    {"id": 30, "name": "Strawberry Banana"},
-                    {"id": 31, "name": "Strawberry Ice"},
-                    {"id": 32, "name": "Strawberry Kiwi"},
-                    {"id": 33, "name": "Strawberry Mango"},
-                    {"id": 34, "name": "Strawberry Pina Coloda"},
-                    {"id": 35, "name": "Strawberry Watermelon"},
-                    {"id": 36, "name": "Sunset"},
-                    {"id": 37, "name": "Triple Berry Ice"},
-                    {"id": 38, "name": "Tropical Rainbow Blast"},
-                    {"id": 39, "name": "Watermelon Bubble Gum"},
-                    {"id": 40, "name": "Watermelon Ice"}
-                ],
-                "photo_url": "https://link-to-elf-bar-bc-5000-photo.com/image.jpg"
-            },
-            {
-                "id": "elf_bar_pi_7000",
-                "name": "ELF BAR Pi 7000",
-                "items": [
-                    {"id": 41, "name": "French Kissing"},
-                    {"id": 42, "name": "Mango Peach Watermelon"},
-                    {"id": 43, "name": "Pineapple Mint"},
-                    {"id": 44, "name": "Rainbow Cloudz"}
-                ],
-                "photo_url": "https://link-to-elf-bar-pi-7000-photo.com/image.jpg"
-            },
-            {
-                "id": "elf_bar_8000",
-                "name": "Elf Bar 8000",
-                "items": [
-                    {"id": 45, "name": "Banana Ice", "code": "400"},
-                    {"id": 46, "name": "Blackberry Cherry Lemon", "code": "600"},
-                    {"id": 47, "name": "Blue Razz Ice", "code": "400"},
-                    {"id": 48, "name": "Blue Sour Raspberry", "code": "600"},
-                    {"id": 49, "name": "Cherry Peach Colada", "code": "600"},
-                    {"id": 50, "name": "Colombian Coffee Ice", "code": "200"},
-                    {"id": 51, "name": "Lychee Ice", "code": "400"},
-                    {"id": 52, "name": "Pineapple Ice", "code": "400"},
-                    {"id": 53, "name": "Strawberry Pineapple Lemonade", "code": "600"},
-                    {"id": 54, "name": "Watermelon Ice", "code": "400"},
-                    {"id": 55, "name": "White Strawberry Ice", "code": "600"}
-                ],
-                "photo_url": "https://link-to-elf-bar-8000-photo.com/image.jpg"
-            },
-            {
-                "id": "elf_bar_bc_10000",
-                "name": "ELF BAR BC 10000",
-                "items": [
-                    {"id": 56, "name": "Apple Ice"},
-                    {"id": 57, "name": "Blackberry Cranberry"},
-                    {"id": 58, "name": "Blueberry Gami"},
-                    {"id": 59, "name": "Blueberry Ice"},
-                    {"id": 60, "name": "Blueberry Mint"},
-                    {"id": 61, "name": "Blue Razz Ice"},
-                    {"id": 62, "name": "Cherry Watermelon"},
-                    {"id": 63, "name": "Double Mango"},
-                    {"id": 64, "name": "Grape Cherry"},
-                    {"id": 65, "name": "Grape Ice"},
-                    {"id": 66, "name": "Lemon Lime"},
-                    {"id": 67, "name": "Miami Mint"},
-                    {"id": 68, "name": "Peach Ice"},
-                    {"id": 69, "name": "Pineapple Strawberry Banana"},
-                    {"id": 70, "name": "Red Berry Cherry"},
-                    {"id": 71, "name": "Siberian Mint"},
-                    {"id": 72, "name": "Strawberry Banana"},
-                    {"id": 73, "name": "Strawberry Ice"},
-                    {"id": 74, "name": "Strawberry Kiwi Ice"},
-                    {"id": 75, "name": "Watermelon Ice"}
-                ],
-                "photo_url": "https://link-to-elf-bar-bc-10000-photo.com/image.jpg"
-            },
-            {
-                "id": "touch_20000",
-                "name": "Touch 20000",
-                "items": [
-                    {"id": 76, "name": "Cranbery Grape", "code": "50"},
-                    {"id": 77, "name": "Wotermelon ice", "code": "55"},
-                    {"id": 78, "name": "Polár mint", "code": "75"},
-                    {"id": 79, "name": "Blueberry rasbery", "code": "110"},
-                    {"id": 80, "name": "Chery lemon", "code": "80"},
-                    {"id": 81, "name": "Chery cola", "code": "120"},
-                    {"id": 82, "name": "Wotermelon chery", "code": "50"},
-                    {"id": 83, "name": "Grape energy", "code": "130"},
-                    {"id": 84, "name": "Storberry wotermleon bublegum", "code": "70"},
-                    {"id": 85, "name": "Strawberry Grape", "code": "90"},
-                    {"id": 86, "name": "Mango peach", "code": "95"},
-                    {"id": 87, "name": "Kiwi passion fruti guawa", "code": "80"},
-                    {"id": 88, "name": "Peach Berry", "code": "50"},
-                    {"id": 89, "name": "Pink lemaon", "code": "50"}
-                ],
-                "photo_url": "https://link-to-touch-20000-photo.com/image.jpg"
+                    {"id": 1, "name": "Grape Ice"},
+                    {"id": 2, "name": "Blue Razz Ice"},
+                    {"id": 3, "name": "Watermelon ICE"},
+                    {"id": 4, "name": "Kiwi pineapple Peach"}
+                ]
             },
             {
                 "id": "elf_bar_25000_combo",
                 "name": "ELF BAR 25000 COMBO",
                 "items": [
-                    {"id": 90, "name": "Apple/Juice Peach"},
-                    {"id": 91, "name": "Blackcurrant/Raspberry Grape"},
-                    {"id": 92, "name": "Blueberry/Sour Raspberry Cherry"},
-                    {"id": 93, "name": "Grape/Mary Power"},
-                    {"id": 94, "name": "Green Apple/Double Apple Shisha"},
-                    {"id": 95, "name": "Green Grape/Grape"},
-                    {"id": 96, "name": "Lime/Pineapple"},
-                    {"id": 97, "name": "Peach/Mango Watermelon"},
-                    {"id": 98, "name": "Pink Lemonade/Grape Fruit"},
-                    {"id": 99, "name": "Watermelon/Strawberry"}
-                ],
-                "photo_url": "https://link-to-elf-bar-25000-combo-photo.com/image.jpg"
+                    {"id": 5, "name": "Blackcurrant Raspberry/Grape"},
+                    {"id": 6, "name": "Peach Mango/Watermelon"},
+                    {"id": 7, "name": "Watermelon/Strawberry"}
+                ]
+            },
+            {
+                "id": "elf_bar_8000_ep",
+                "name": "Elf Bar 8000 EP",
+                "items": [
+                    {"id": 8, "name": "White Strawberry"},
+                    {"id": 9, "name": "Colombian Coffee Ice"}
+                ]
+            },
+            {
+                "id": "elf_bar_5000_ultra",
+                "name": "ELF BAR 5000 Ultra",
+                "items": [
+                    {"id": 10, "name": "Tropical Rainbow blast"},
+                    {"id": 11, "name": "Watermelon Ice"}
+                ]
+            },
+            {
+                "id": "touch_10000",
+                "name": "Touch 10000",
+                "items": [
+                    {"id": 12, "name": "LA Mint"},
+                    {"id": 13, "name": "Mount Splash"}
+                ]
+            },
+            {
+                "id": "vozol_star_20000",
+                "name": "Vozol Star 20000",
+                "items": [
+                    {"id": 14, "name": "Tropical Blast"},
+                    {"id": 15, "name": "Blue Razz Ice"},
+                    {"id": 16, "name": "Raspberry Kiwi"}
+                ]
+            },
+            {
+                "id": "vista_vozol_20000",
+                "name": "Vista Vozol 20000",
+                "items": [
+                    {"id": 17, "name": "Watermelon Ice"},
+                    {"id": 18, "name": "Strawberry Raspberry Cherry"},
+                    {"id": 19, "name": "Peach ice"}
+                ]
             }
         ]
     }
-} 
+}
