@@ -257,26 +257,76 @@ async def process_back(callback: types.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
     user_data = await state.get_data()
     
-    # Create a new message instead of editing
-    if current_state == OrderStates.choosing_location:
-        new_callback = callback.model_copy(update={'data': "start_shopping"})
-        await show_delivery_options(new_callback, state)
-    elif current_state == OrderStates.choosing_collection:
-        if user_data.get('delivery_type') == 'delivery':
-            new_callback = callback.model_copy(update={'data': "delivery"})
-            await request_address(new_callback, state)
-        else:
-            new_callback = callback.model_copy(update={'data': "pickup"})
-            await show_locations(new_callback, state)
-    elif current_state == OrderStates.choosing_aroma:
-        new_callback = callback.model_copy(update={'data': f"loc_{user_data['location']}"})
-        await process_location(new_callback, state)
-    
-    # Try to delete the original message, but don't raise an error if it fails
     try:
+        # Delete the current message first
         await callback.message.delete()
     except Exception:
         pass
+
+    if current_state == OrderStates.choosing_location:
+        keyboard = [
+            [
+                InlineKeyboardButton(text="🏪 Самовывоз", callback_data="pickup"),
+                InlineKeyboardButton(text="🚚 Доставка", callback_data="delivery")
+            ]
+        ]
+        reply_markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
+        
+        await callback.message.answer(
+            "Выберите способ получения:",
+            reply_markup=reply_markup
+        )
+        await state.set_state(OrderStates.choosing_delivery)
+
+    elif current_state == OrderStates.choosing_collection:
+        if user_data.get('delivery_type') == 'delivery':
+            await callback.message.answer(
+                "📍 Пожалуйста, напишите адрес доставки:\n"
+                "(укажите улицу, дом, квартиру и другие необходимые детали)"
+            )
+            await state.set_state(OrderStates.waiting_for_address)
+        else:
+            keyboard = [
+                [InlineKeyboardButton(text=loc_data["name"], callback_data=f"loc_{loc_key}")]
+                for loc_key, loc_data in config["locations"].items()
+            ]
+            keyboard.append(create_back_button())
+            reply_markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
+            
+            await callback.message.answer(
+                "🏪 Выберите ближайший магазин для самовывоза:",
+                reply_markup=reply_markup
+            )
+            await state.set_state(OrderStates.choosing_location)
+
+    elif current_state == OrderStates.choosing_aroma:
+        keyboard = [
+            [InlineKeyboardButton(
+                text=collection["name"], 
+                callback_data=f"col_{collection['id']}"
+            )]
+            for collection in config["catalog"]["collections"]
+        ]
+        keyboard.append(create_back_button())
+        reply_markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
+        
+        message_text = ""
+        if user_data.get('delivery_type') == 'pickup':
+            message_text = (
+                f"📍 Выбранный магазин: {config['locations'][user_data['location']]['name']}\n\n"
+                f"Выберите коллекцию:"
+            )
+        else:
+            message_text = (
+                f"📍 Адрес доставки: {user_data['delivery_address']}\n\n"
+                f"Выберите коллекцию:"
+            )
+        
+        await callback.message.answer(
+            text=message_text,
+            reply_markup=reply_markup
+        )
+        await state.set_state(OrderStates.choosing_collection)
 
 # Main function to run both bots
 async def main():
