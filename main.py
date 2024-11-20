@@ -7,6 +7,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, FSInputFile
 from datetime import datetime
 import os
+import random
 # Load configuration
 with open('config.json', 'r') as f:
     config = json.load(f)
@@ -193,6 +194,10 @@ async def process_collection(callback: types.CallbackQuery, state: FSMContext):
         )
     await state.set_state(OrderStates.choosing_aroma)
 
+async def send_follow_up_message(message: types.Message):
+    await asyncio.sleep(random.randint(1, 30))  # Random delay between 1-30 seconds
+    await message.answer("🕐 Ваш заказ обрабатывается... Мы свяжемся с вами в течение 5 минут!")
+
 @dp.callback_query(lambda c: c.data.startswith('aroma_'))
 async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
     if callback.bot.id == main_bot.id:
@@ -242,7 +247,10 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
         )
         
         await callback.message.delete()
-        await callback.message.answer(customer_message)
+        sent_message = await callback.message.answer(customer_message)
+        
+        # Start sending follow-up message
+        asyncio.create_task(send_follow_up_message(sent_message))
         
         # Send notification to the manager through manager bot
         try:

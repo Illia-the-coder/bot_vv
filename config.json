@@ -27,6 +27,8 @@
             {
                 "id": "elf_bar_15000",
                 "name": "Elf Bar 15000",
+                "description": "🔋 5000 затяжек\n🧃 10 ml жидкости\n🔋 500 mAh\n💪 50 mg никотина\n🔌 Type-C зарядка",
+                "price": 18,
                 "items": [
                     {"id": 1, "name": "Grape Ice"},
                     {"id": 2, "name": "Blue Razz Ice"},
@@ -37,6 +39,8 @@
             {
                 "id": "elf_bar_25000_combo",
                 "name": "ELF BAR 25000 COMBO",
+                "description": "🔋 25000 затяжек\n🧃 20 ml жидкости\n🔋 600 mAh\n💪 60 mg никотина\n🔌 Type-C зарядка",
+                "price": 22,
                 "items": [
                     {"id": 5, "name": "Blackcurrant Raspberry/Grape"},
                     {"id": 6, "name": "Peach Mango/Watermelon"},
@@ -46,6 +50,8 @@
             {
                 "id": "elf_bar_8000_ep",
                 "name": "Elf Bar 8000 EP",
+                "description": "🔋 8000 затяжек\n🧃 15 ml жидкости\n🔋 550 mAh\n💪 55 mg никотина\n🔌 Type-C зарядка",
+                "price": 12,
                 "items": [
                     {"id": 8, "name": "White Strawberry"},
                     {"id": 9, "name": "Colombian Coffee Ice"}
@@ -54,14 +60,18 @@
             {
                 "id": "elf_bar_5000_ultra",
                 "name": "ELF BAR 5000 Ultra",
+                "description": "🔋 5000 затяжек\n🧃 12 ml жидкости\n🔋 500 mAh\n💪 50 mg никотина\n🔌 Type-C зарядка",
+                "price": 15,
                 "items": [
-                    {"id": 10, "name": "Tropical Rainbow blast"},
+                    {"id": 10, "name": "Tropical Rainbow Blast"},
                     {"id": 11, "name": "Watermelon Ice"}
                 ]
             },
             {
                 "id": "touch_10000",
                 "name": "Touch 10000",
+                "description": "🔋 10000 затяжек\n🧃 18 ml жидкости\n🔋 600 mAh\n💪 60 mg никотина\n🔌 Type-C зарядка",
+                "price": 20,
                 "items": [
                     {"id": 12, "name": "LA Mint"},
                     {"id": 13, "name": "Mount Splash"}
@@ -70,6 +80,8 @@
             {
                 "id": "vozol_star_20000",
                 "name": "Vozol Star 20000",
+                "description": "🔋 20000 затяжек\n🧃 25 ml жидкости\n🔋 700 mAh\n💪 70 mg никотина\n🔌 Type-C зарядка",
+                "price": 25,
                 "items": [
                     {"id": 14, "name": "Tropical Blast"},
                     {"id": 15, "name": "Blue Razz Ice"},
@@ -79,10 +91,12 @@
             {
                 "id": "vista_vozol_20000",
                 "name": "Vista Vozol 20000",
+                "description": "🔋 20000 затяжек\n🧃 25 ml жидкости\n🔋 700 mAh\n💪 70 mg никотина\n🔌 Type-C зарядка",
+                "price": 19,
                 "items": [
                     {"id": 17, "name": "Watermelon Ice"},
                     {"id": 18, "name": "Strawberry Raspberry Cherry"},
-                    {"id": 19, "name": "Peach ice"}
+                    {"id": 19, "name": "Peach Ice"}
                 ]
             }
         ]
