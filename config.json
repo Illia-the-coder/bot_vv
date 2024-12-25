@@ -1,7 +1,7 @@
 {
     "api_key": "7358078697:AAF5QHan0x8jFhTskoWT7qzh1Tg-R4-sWZE",
     "manager_bot_token": "7871083457:AAF7Aa10jHnInLEJxqObHi_1JqSOiS183Qw",
-    "manager_id": 5344423873,
+    "manager_id": 7201238835,
     "locations": {
         "stephansplatz": {
             "name": "Stephansplatz"
@@ -15,90 +15,181 @@
         "hauptbahnhof": {
             "name": "Hauptbahnhof"
         },
-        "westbahnhof": {
-            "name": "Westbahnhof"
+        "kagran": {
+            "name": "Kagran"
         },
-        "mariahilferstrasse": {
-            "name": "Mariahilferstrasse"
+        "sankt_marx": {
+            "name": "Sankt Marx"
+        },
+        "vorgartenstrasse": {
+            "name": "Vorgartenstraße"
         }
     },
     "catalog": {
-        "collections": [
+        "hqd_collections": [
             {
-                "id": "elf_bar_15000",
-                "name": "Elf Bar 15000",
-                "description": "🔋 5000 затяжек\n🧃 10 ml жидкости\n🔋 500 mAh\n💪 50 mg никотина\n🔌 Type-C зарядка",
+                "id": "elf_bar_bc5000ultra",
+                "name": "Elfbar BC 5000 Ultra",
+                "description": "5000 затяжек\n10 ml жидкости\n500 mAh\n50 mg никотина\nType-C зарядка",
                 "price": 18,
+                "puffs": 5000,
                 "items": [
-                    {"id": 1, "name": "Grape Ice"},
-                    {"id": 2, "name": "Blue Razz Ice"},
-                    {"id": 3, "name": "Watermelon ICE"},
-                    {"id": 4, "name": "Kiwi pineapple Peach"}
+                    {"id": 1, "name": "Watermelon Ice"},
+                    {"id": 2, "name": "Orange Soda"},
+                    {"id": 3, "name": "Blue Cotton Candy"}
                 ]
             },
             {
-                "id": "elf_bar_25000_combo",
-                "name": "ELF BAR 25000 COMBO",
-                "description": "🔋 25000 затяжек\n🧃 20 ml жидкости\n🔋 600 mAh\n💪 60 mg никотина\n🔌 Type-C зарядка",
+                "id": "elf_bar_ep8000",
+                "name": "Elfbar EP 8000",
+                "description": "8000 затяжек\n15 ml жидкости\n550 mAh\n55 mg никотина\nType-C зарядка",
                 "price": 22,
+                "puffs": 8000,
                 "items": [
-                    {"id": 5, "name": "Blackcurrant Raspberry/Grape"},
-                    {"id": 6, "name": "Peach Mango/Watermelon"},
-                    {"id": 7, "name": "Watermelon/Strawberry"}
+                    {"id": 4, "name": "White Strawberry Ice"},
+                    {"id": 5, "name": "Blackberry Cherry Lemon"},
+                    {"id": 6, "name": "Blue Sour Raspberry"},
+                    {"id": 7, "name": "Strawberry Pineapple Lemonade"},
+                    {"id": 8, "name": "Cherry Peach Colada"}
                 ]
             },
             {
-                "id": "elf_bar_8000_ep",
-                "name": "Elf Bar 8000 EP",
-                "description": "🔋 8000 затяжек\n🧃 15 ml жидкости\n🔋 550 mAh\n💪 55 mg никотина\n🔌 Type-C зарядка",
-                "price": 12,
-                "items": [
-                    {"id": 8, "name": "White Strawberry"},
-                    {"id": 9, "name": "Colombian Coffee Ice"}
-                ]
-            },
-            {
-                "id": "elf_bar_5000_ultra",
-                "name": "ELF BAR 5000 Ultra",
-                "description": "🔋 5000 затяжек\n🧃 12 ml жидкости\n🔋 500 mAh\n💪 50 mg никотина\n🔌 Type-C зарядка",
+                "id": "elf_bar_bc10000",
+                "name": "Elfbar BC 10000",
+                "description": "10000 затяжек\n20 ml жидкости\n600 mAh\n60 mg никотина\nType-C зарядка",
                 "price": 15,
+                "puffs": 10000,
                 "items": [
-                    {"id": 10, "name": "Tropical Rainbow Blast"},
-                    {"id": 11, "name": "Watermelon Ice"}
+                    {"id": 9, "name": "Blueberry Mint"},
+                    {"id": 10, "name": "Siberian Mint"},
+                    {"id": 11, "name": "Sea Salt Lemon"},
+                    {"id": 12, "name": "Yakult"}
                 ]
             },
             {
-                "id": "touch_10000",
-                "name": "Touch 10000",
-                "description": "🔋 10000 затяжек\n🧃 18 ml жидкости\n🔋 600 mAh\n💪 60 mg никотина\n🔌 Type-C зарядка",
+                "id": "elf_bar_bc15000",
+                "name": "Elfbar BC 15000",
+                "description": "15000 затяжек\n25 ml жидкости\n700 mAh\n70 mg никотина\nType-C зарядка",
                 "price": 20,
+                "puffs": 15000,
                 "items": [
-                    {"id": 12, "name": "LA Mint"},
-                    {"id": 13, "name": "Mount Splash"}
+                    {"id": 13, "name": "Grapefruit Passion Fruit"},
+                    {"id": 14, "name": "Watermelon Ice"},
+                    {"id": 15, "name": "Cherry Lime"},
+                    {"id": 16, "name": "Pineapple Dragonfruit Grapefruit"}
                 ]
             },
             {
-                "id": "vozol_star_20000",
-                "name": "Vozol Star 20000",
-                "description": "🔋 20000 затяжек\n🧃 25 ml жидкости\n🔋 700 mAh\n💪 70 mg никотина\n🔌 Type-C зарядка",
+                "id": "elf_bar_bc18000",
+                "name": "Elfbar BC 18000",
+                "description": "18000 затяжек\n30 ml жидкости\n800 mAh\n80 mg никотина\nType-C зарядка",
                 "price": 25,
+                "puffs": 18000,
                 "items": [
-                    {"id": 14, "name": "Tropical Blast"},
-                    {"id": 15, "name": "Blue Razz Ice"},
-                    {"id": 16, "name": "Raspberry Kiwi"}
+                    {"id": 17, "name": "Blue Razz Ice"}
                 ]
             },
             {
-                "id": "vista_vozol_20000",
-                "name": "Vista Vozol 20000",
-                "description": "🔋 20000 затяжек\n🧃 25 ml жидкости\n🔋 700 mAh\n💪 70 mg никотина\n🔌 Type-C зарядка",
-                "price": 19,
+                "id": "elf_bar_bc20000",
+                "name": "Elfbar BC 20000",
+                "description": "20000 затяжек\n35 ml жидкости\n900 mAh\n90 mg никотина\nType-C зарядка",
+                "price": 25,
+                "puffs": 20000,
                 "items": [
-                    {"id": 17, "name": "Watermelon Ice"},
-                    {"id": 18, "name": "Strawberry Raspberry Cherry"},
-                    {"id": 19, "name": "Peach Ice"}
+                    {"id": 18, "name": "Peach+"},
+                    {"id": 19, "name": "Peppermint"}
+                ]
+            },
+            {
+                "id": "combo_x_25000",
+                "name": "Elfbar 25000 Combo",
+                "description": "25000 затяжек\n40 ml жидкости\n1000 mAh\n100 mg никотина\nType-C зарядка",
+                "price": 19,
+                "puffs": 25000,
+                "items": [
+                    {"id": 20, "name": "Pink Lemonade / Grape Fruit"},
+                    {"id": 21, "name": "Watermelon / Strawberry"},
+                    {"id": 22, "name": "Blackcurrant Raspberry / Grape"},
+                    {"id": 23, "name": "Blueberry Sour Raspberry / Cherry"}
+                ]
+            },
+            {
+                "id": "vozol_gear_10000",
+                "name": "Vozol Gear 10000",
+                "description": "10000 затяжек\n20 ml жидкости\n600 mAh\n60 mg никотина\nType-C зарядка",
+                "price": 20,
+                "puffs": 10000,
+                "items": [
+                    {"id": 24, "name": "Forest Berry Storm"},
+                    {"id": 25, "name": "Kiwi Passion Fruit Guava"}
+                ]
+            }
+        ],
+        "liquid_collections": [
+            {
+                "id": "chaser_black_30ml_5",
+                "name": "Chaser Black 5% 30ml",
+                "description": "30 ml жидкости\n5% никотина\nType-C зарядка",
+                "price": 15,
+                "puffs": 0,
+                "items": [
+                    {"id": 26, "name": "Strawberry Blueberry"},
+                    {"id": 27, "name": "Energy Raspberry"},
+                    {"id": 28, "name": "Flirt"}
+                ]
+            },
+            {
+                "id": "elfliq_5_30ml",
+                "name": "Elfliq 5% 30ml",
+                "description": "30 ml жидкости\n5% никотина\nType-C зарядка",
+                "price": 12,
+                "puffs": 0,
+                "items": [
+                    {"id": 29, "name": "Spearmint"},
+                    {"id": 30, "name": "Blue Razz Ice"},
+                    {"id": 31, "name": "Blueberry Rose Mint"},
+                    {"id": 32, "name": "Lemon Lime"},
+                    {"id": 33, "name": "Strawberry Raspberry Cherry Ice"},
+                    {"id": 34, "name": "Pink Lemonade"},
+                    {"id": 35, "name": "Sour Watermelon Gummy"}
                 ]
             }
         ]
+    },
+    "branding": {
+        "primary_color": "#FF5733",
+        "secondary_color": "#000000",
+        "channel_name": "Vienna Vape | Austria | Vienna",
+        "channel_description": "Лучшие одноразки в Вене 🌟\nОригинальная продукция ✅\nБыстрая доставка 🚀"
+    },
+    "menu_sections": {
+        "why_us": [
+            "• Только оригинальная продукция 🛍️",
+            "• Доставка в течение часа ⏰",
+            "• Гарантия качества ✅",
+            "• Обмен брака 🔄",
+            "• Самовывоз в центре 📍"
+        ],
+        "delivery": {
+            "standard": "• Доставка: 5€",
+            "express": "• Срочная доставка: 10€",
+            "pickup": "• Самовывоз: Бесплатно"
+        }
+    },
+    "premium_emojis": {
+        "price": "💰",
+        "navigation": "🧭",
+        "new": "🆕",
+        "info": "ℹ️",
+        "flavors": "🍓",
+        "back": "↩️",
+        "order": "🛒",
+        "manager": "👔",
+        "delivery": "🚚",
+        "pickup": "🏬",
+        "promotion": "🎁",
+        "warranty": "🛡️",
+        "wholesale": "📦",
+        "payment": "💳"
     }
 }
