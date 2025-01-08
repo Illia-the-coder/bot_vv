@@ -1,30 +1,216 @@
 {
     "api_key": "7358078697:AAF5QHan0x8jFhTskoWT7qzh1Tg-R4-sWZE",
     "manager_bot_token": "7871083457:AAF7Aa10jHnInLEJxqObHi_1JqSOiS183Qw",
-    "manager_id": 7201238835,
+    "manager_id": 1245273083,
+    "manager_username": "@manager_vienna_vape",
     "locations": {
         "stephansplatz": {
-            "name": "Stephansplatz"
-        },
-        "praterstern": {
-            "name": "Praterstern"
+            "name": "Stephansplatz",
+            "inventory": {}
         },
         "wien_mitte": {
-            "name": "Wien Mitte"
-        },
-        "hauptbahnhof": {
-            "name": "Hauptbahnhof"
-        },
-        "kagran": {
-            "name": "Kagran"
-        },
-        "sankt_marx": {
-            "name": "Sankt Marx"
+            "name": "Wien Mitte",
+            "inventory": {}
         },
         "vorgartenstrasse": {
-            "name": "Vorgartenstraße"
+            "name": "Vorgartenstraße",
+            "inventory": {}
+        },
+        "praterstern": {
+            "name": "Praterstern",
+            "inventory": {}
+        },
+        "hauptbahnhof": {
+            "name": "Hauptbahnhof",
+            "inventory": {}
+        },
+        "kagran": {
+            "name": "Kagran",
+            "inventory": {}
+        },
+        "sankt_marx": {
+            "name": "Sankt Marx",
+            "inventory": {}
         }
     },
+    "postavka": [
+        {
+            "date": "2025-01-07",
+            "deliveries": {
+                "stephansplatz": {
+                    "items": {
+                        "26": 2,
+                        "27": 1,
+                        "28": 1,
+                        "29": 1,
+                        "30": 1,
+                        "31": 1,
+                        "32": 1,
+                        "33": 1,
+                        "34": 1,
+                        "35": 1,
+                        "1": 1,
+                        "2": 2,
+                        "3": 1,
+                        "4": 2,
+                        "5": 1,
+                        "6": 2,
+                        "7": 2,
+                        "8": 1,
+                        "36": 2,
+                        "9": 2,
+                        "11": 1,
+                        "12": 1,
+                        "37": 1,
+                        "13": 2,
+                        "14": 2,
+                        "15": 1,
+                        "16": 1,
+                        "18": 1,
+                        "19": 1,
+                        "20": 1,
+                        "21": 2,
+                        "22": 1,
+                        "23": 1
+                    }
+                },
+                "vorgartenstrasse": {
+                    "items": {
+                        "26": 1,
+                        "27": 1,
+                        "28": 1,
+                        "29": 1,
+                        "30": 1,
+                        "31": 1,
+                        "32": 1,
+                        "33": 1,
+                        "34": 1,
+                        "35": 1,
+                        "1": 2,
+                        "2": 2,
+                        "3": 1,
+                        "4": 2,
+                        "5": 1,
+                        "7": 1,
+                        "8": 1,
+                        "36": 1,
+                        "9": 2,
+                        "11": 1,
+                        "12": 1,
+                        "37": 1,
+                        "13": 1,
+                        "14": 1,
+                        "15": 1,
+                        "18": 1,
+                        "19": 1,
+                        "20": 1,
+                        "21": 1,
+                        "22": 1,
+                        "23": 1
+                    }
+                },
+                "hauptbahnhof": {
+                    "items": {
+                        "26": 1,
+                        "27": 1,
+                        "28": 1,
+                        "29": 1,
+                        "30": 1,
+                        "31": 1,
+                        "32": 1,
+                        "33": 1,
+                        "34": 1,
+                        "1": 1,
+                        "2": 1,
+                        "3": 1,
+                        "4": 1,
+                        "5": 1,
+                        "7": 1,
+                        "8": 1,
+                        "36": 2,
+                        "9": 1,
+                        "11": 1,
+                        "12": 1,
+                        "37": 1,
+                        "13": 1,
+                        "14": 2,
+                        "15": 1,
+                        "16": 1,
+                        "18": 1,
+                        "19": 1,
+                        "20": 1,
+                        "21": 2,
+                        "22": 1,
+                        "23": 1
+                    }
+                },
+                "kagran": {
+                    "items": {
+                        "26": 1,
+                        "27": 1,
+                        "29": 1,
+                        "30": 1,
+                        "31": 1,
+                        "32": 1,
+                        "33": 1,
+                        "34": 1,
+                        "1": 1,
+                        "2": 1,
+                        "3": 1,
+                        "4": 1,
+                        "7": 1,
+                        "8": 1,
+                        "36": 1,
+                        "9": 1,
+                        "11": 1,
+                        "12": 1,
+                        "37": 1,
+                        "13": 1,
+                        "14": 1,
+                        "15": 1,
+                        "18": 1,
+                        "19": 1,
+                        "20": 1,
+                        "21": 1,
+                        "22": 1,
+                        "23": 1
+                    }
+                },
+                "sankt_marx": {
+                    "items": {
+                        "26": 1,
+                        "27": 1,
+                        "29": 1,
+                        "30": 1,
+                        "31": 1,
+                        "32": 1,
+                        "33": 1,
+                        "34": 1,
+                        "1": 1,
+                        "2": 1,
+                        "3": 1,
+                        "4": 1,
+                        "7": 1,
+                        "8": 1,
+                        "36": 1,
+                        "9": 1,
+                        "11": 1,
+                        "12": 1,
+                        "37": 1,
+                        "13": 1,
+                        "14": 1,
+                        "15": 1,
+                        "18": 1,
+                        "19": 1,
+                        "20": 1,
+                        "21": 1,
+                        "22": 1,
+                        "23": 1
+                    }
+                }
+            }
+        }
+    ],
     "catalog": {
         "hqd_collections": [
             {
@@ -34,9 +220,18 @@
                 "price": 18,
                 "puffs": 5000,
                 "items": [
-                    {"id": 1, "name": "Watermelon Ice"},
-                    {"id": 2, "name": "Orange Soda"},
-                    {"id": 3, "name": "Blue Cotton Candy"}
+                    {
+                        "id": 1,
+                        "name": "Watermelon Ice"
+                    },
+                    {
+                        "id": 2,
+                        "name": "Orange Soda"
+                    },
+                    {
+                        "id": 3,
+                        "name": "Blue Cotton Candy"
+                    }
                 ]
             },
             {
@@ -46,11 +241,30 @@
                 "price": 22,
                 "puffs": 8000,
                 "items": [
-                    {"id": 4, "name": "White Strawberry Ice"},
-                    {"id": 5, "name": "Blackberry Cherry Lemon"},
-                    {"id": 6, "name": "Blue Sour Raspberry"},
-                    {"id": 7, "name": "Strawberry Pineapple Lemonade"},
-                    {"id": 8, "name": "Cherry Peach Colada"}
+                    {
+                        "id": 4,
+                        "name": "White Strawberry Ice"
+                    },
+                    {
+                        "id": 5,
+                        "name": "Blackberry Cherry Lemon"
+                    },
+                    {
+                        "id": 6,
+                        "name": "Blue Sour Raspberry"
+                    },
+                    {
+                        "id": 7,
+                        "name": "Strawberry Pineapple Lemonade"
+                    },
+                    {
+                        "id": 8,
+                        "name": "Cherry Peach Colada"
+                    },
+                    {
+                        "id": 36,
+                        "name": "Blue Razz Ice"
+                    }
                 ]
             },
             {
@@ -60,10 +274,22 @@
                 "price": 15,
                 "puffs": 10000,
                 "items": [
-                    {"id": 9, "name": "Blueberry Mint"},
-                    {"id": 10, "name": "Siberian Mint"},
-                    {"id": 11, "name": "Sea Salt Lemon"},
-                    {"id": 12, "name": "Yakult"}
+                    {
+                        "id": 9,
+                        "name": "Blueberry Mint"
+                    },
+                    {
+                        "id": 11,
+                        "name": "Sea Salt Lemon"
+                    },
+                    {
+                        "id": 12,
+                        "name": "Yakult"
+                    },
+                    {
+                        "id": 37,
+                        "name": "Siberian Mint"
+                    }
                 ]
             },
             {
@@ -73,10 +299,22 @@
                 "price": 20,
                 "puffs": 15000,
                 "items": [
-                    {"id": 13, "name": "Grapefruit Passion Fruit"},
-                    {"id": 14, "name": "Watermelon Ice"},
-                    {"id": 15, "name": "Cherry Lime"},
-                    {"id": 16, "name": "Pineapple Dragonfruit Grapefruit"}
+                    {
+                        "id": 13,
+                        "name": "Grapefruit Passion Fruit"
+                    },
+                    {
+                        "id": 14,
+                        "name": "Watermelon Ice"
+                    },
+                    {
+                        "id": 15,
+                        "name": "Cherry Lime"
+                    },
+                    {
+                        "id": 16,
+                        "name": "Pineapple Dragonfruit Grapefruit"
+                    }
                 ]
             },
             {
@@ -86,7 +324,10 @@
                 "price": 25,
                 "puffs": 18000,
                 "items": [
-                    {"id": 17, "name": "Blue Razz Ice"}
+                    {
+                        "id": 17,
+                        "name": "Blue Razz Ice"
+                    }
                 ]
             },
             {
@@ -96,8 +337,14 @@
                 "price": 25,
                 "puffs": 20000,
                 "items": [
-                    {"id": 18, "name": "Peach+"},
-                    {"id": 19, "name": "Peppermint"}
+                    {
+                        "id": 18,
+                        "name": "Peach+"
+                    },
+                    {
+                        "id": 19,
+                        "name": "Peppermint"
+                    }
                 ]
             },
             {
@@ -107,10 +354,22 @@
                 "price": 19,
                 "puffs": 25000,
                 "items": [
-                    {"id": 20, "name": "Pink Lemonade / Grape Fruit"},
-                    {"id": 21, "name": "Watermelon / Strawberry"},
-                    {"id": 22, "name": "Blackcurrant Raspberry / Grape"},
-                    {"id": 23, "name": "Blueberry Sour Raspberry / Cherry"}
+                    {
+                        "id": 20,
+                        "name": "Pink Lemonade / Grape Fruit"
+                    },
+                    {
+                        "id": 21,
+                        "name": "Watermelon / Strawberry"
+                    },
+                    {
+                        "id": 22,
+                        "name": "Blackcurrant Raspberry / Grape"
+                    },
+                    {
+                        "id": 23,
+                        "name": "Blueberry Sour Raspberry / Cherry"
+                    }
                 ]
             },
             {
@@ -120,8 +379,14 @@
                 "price": 20,
                 "puffs": 10000,
                 "items": [
-                    {"id": 24, "name": "Forest Berry Storm"},
-                    {"id": 25, "name": "Kiwi Passion Fruit Guava"}
+                    {
+                        "id": 24,
+                        "name": "Forest Berry Storm"
+                    },
+                    {
+                        "id": 25,
+                        "name": "Kiwi Passion Fruit Guava"
+                    }
                 ]
             }
         ],
@@ -129,29 +394,59 @@
             {
                 "id": "chaser_black_30ml_5",
                 "name": "Chaser Black 5% 30ml",
-                "description": "30 ml жидкости\n5% никотина\nType-C зарядка",
+                "description": "30 ml жидкости\n5% никотина",
                 "price": 15,
                 "puffs": 0,
                 "items": [
-                    {"id": 26, "name": "Strawberry Blueberry"},
-                    {"id": 27, "name": "Energy Raspberry"},
-                    {"id": 28, "name": "Flirt"}
+                    {
+                        "id": 26,
+                        "name": "Strawberry Blueberry"
+                    },
+                    {
+                        "id": 27,
+                        "name": "Energy Raspberry"
+                    },
+                    {
+                        "id": 28,
+                        "name": "Flirt"
+                    }
                 ]
             },
             {
                 "id": "elfliq_5_30ml",
                 "name": "Elfliq 5% 30ml",
-                "description": "30 ml жидкости\n5% никотина\nType-C зарядка",
+                "description": "30 ml жидкости\n5% никотина",
                 "price": 12,
                 "puffs": 0,
                 "items": [
-                    {"id": 29, "name": "Spearmint"},
-                    {"id": 30, "name": "Blue Razz Ice"},
-                    {"id": 31, "name": "Blueberry Rose Mint"},
-                    {"id": 32, "name": "Lemon Lime"},
-                    {"id": 33, "name": "Strawberry Raspberry Cherry Ice"},
-                    {"id": 34, "name": "Pink Lemonade"},
-                    {"id": 35, "name": "Sour Watermelon Gummy"}
+                    {
+                        "id": 29,
+                        "name": "Spearmint"
+                    },
+                    {
+                        "id": 30,
+                        "name": "Blue Razz Ice"
+                    },
+                    {
+                        "id": 31,
+                        "name": "Blueberry Rose Mint"
+                    },
+                    {
+                        "id": 32,
+                        "name": "Lemon Lime"
+                    },
+                    {
+                        "id": 33,
+                        "name": "Strawberry Raspberry Cherry Ice"
+                    },
+                    {
+                        "id": 34,
+                        "name": "Pink Lemonade"
+                    },
+                    {
+                        "id": 35,
+                        "name": "Sour Watermelon Gummy"
+                    }
                 ]
             }
         ]
@@ -191,5 +486,7 @@
         "warranty": "🛡️",
         "wholesale": "📦",
         "payment": "💳"
-    }
+    },
+    "orders": [
+    ]
 }
