@@ -1,26 +1,60 @@
 import json
 import asyncio
 import logging
+import os
+import random
+from datetime import datetime
+
+import pandas as pd
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputFile
-from datetime import datetime
-import os
-import random
-import pandas as pd
+from airtable import Airtable  # Import Airtable client
+from dotenv import load_dotenv
 
-# Load configuration
+# Load environment variables
+load_dotenv()
+
+# Initialize configuration from config.json
 with open('config.json', 'r', encoding='utf-8') as f:
     config = json.load(f)
 
+# Retrieve configuration from config.json
+api_key = config.get('api_key')
+manager_bot_token = config.get('manager_bot_token')
+manager_id = config.get('manager_id')
+manager_username = config.get('manager_username')  # Optional, if needed
+locations = config.get('locations', {})
+postavka = config.get('postavka', [])
+catalog = config.get('catalog', {})
+branding = config.get('branding', {})
+menu_sections = config.get('menu_sections', {})
+premium_emojis = config.get('premium_emojis', {})
+orders = config.get('orders', [])
+
+if not all([api_key, manager_bot_token, manager_id, catalog, locations]):
+    raise EnvironmentError("One or more required configurations are missing in config.json.")
+
+# Initialize Airtable for orders
+airtable_api_key = 'patiYQItaj3fkdAYR.f1c0901c38fefc439945a2f9685511ed7cc6b636fd5cfc33aa548aafa9458564'
+airtable_base_id = 'app3tQaubsx9JQK0z'
+
+if not all([airtable_api_key, airtable_base_id]):
+    raise EnvironmentError("AIRTABLE_API_KEY and AIRTABLE_BASE_ID must be set in environment variables.")
+
+orders_airtable = Airtable(airtable_base_id, 'main', airtable_api_key)
+
 # Initialize both bots
-main_bot = Bot(token=config['api_key'])
-manager_bot = Bot(token=config['manager_bot_token'])
+main_bot = Bot(token=api_key)
+manager_bot = Bot(token=manager_bot_token)
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,  # Change to DEBUG for more detailed logs
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 # Create dispatchers for each bot
 main_dp = Dispatcher()
@@ -37,16 +71,16 @@ class OrderStates(StatesGroup):
     waiting_for_address = State()
 
 def create_back_button():
-    return [InlineKeyboardButton(text="⬅️ Назад", callback_data="back")]
+    return [InlineKeyboardButton(text=branding.get('premium_emojis', {}).get('back', '⬅️ Назад'), callback_data="back")]
 
 def build_inventory(config):
     # Initialize inventory
     inventory = {key: {} for key in config["locations"].keys()}
 
     # Aggregate deliveries from postavka
-    for postavka in config.get("postavka", []):
-        for loc, delivery in postavka["deliveries"].items():
-            item_quantities = delivery["items"]
+    for postavka_entry in config.get("postavka", []):
+        for loc, delivery in postavka_entry.get("deliveries", {}).items():
+            item_quantities = delivery.get("items", {})
             for item_id, qty in item_quantities.items():
                 inventory[loc][item_id] = inventory[loc].get(item_id, 0) + qty
 
@@ -57,7 +91,7 @@ def build_inventory(config):
 async def cmd_start(message: types.Message, state: FSMContext):
     first_name = message.from_user.first_name or "Пользователь"
     await message.answer(
-        f"👋 Добро пожаловать, {first_name}, в наш магазин электронных сигарет!\n\n"
+        f"{premium_emojis.get('flavors', '🍓')} Добро пожаловать, {first_name}, в наш магазин электронных сигарет!\n\n"
         "Мы предлагаем широкий выбор продукции ELF BAR.\n"
         "Для продолжения нажмите кнопку ниже 👇"
     )
@@ -70,17 +104,8 @@ async def cmd_start(message: types.Message, state: FSMContext):
 
 @main_dp.message(Command("stats"))
 async def cmd_stats(message: types.Message, state: FSMContext):
-    # Load existing config
-    try:
-        with open('config.json', 'r', encoding='utf-8') as f:
-            config = json.load(f)
-    except Exception as e:
-        logging.error(f"Failed to load config: {e}")
-        await message.answer("Ошибка при загрузке конфигурации.")
-        return
-
     # Check if the user is authorized
-    authorized_users = [config['manager_id']]
+    authorized_users = [int(manager_id)]  # manager_id from config.json
     if message.from_user.id not in authorized_users:
         await message.answer("У вас нет прав для выполнения этой команды.")
         return
@@ -89,9 +114,16 @@ async def cmd_stats(message: types.Message, state: FSMContext):
     inventory = build_inventory(config)
 
     # Subtract items from finished orders
-    for order in config.get("orders", []):
-        if order.get("status") == 1:  # Finished orders
-            location_info = order["customer"].get("location_info", "")
+    try:
+        orders = orders_airtable.get_all()
+    except Exception as e:
+        logging.error(f"Failed to fetch orders from Airtable: {e}")
+        await message.answer("Ошибка при получении данных из Airtable.")
+        return
+
+    for order in orders:  # Fetch all orders from Airtable
+        if order['fields'].get("Status") == True:  # Finished orders
+            location_info = order['fields'].get("Location Info", "")
             loc_key = None
             if "Магазин" in location_info:
                 loc_key = location_info.split(": ")[1].strip()
@@ -99,11 +131,11 @@ async def cmd_stats(message: types.Message, state: FSMContext):
                 loc_key = next((k for k, v in config["locations"].items() if v["name"] == loc_key), None)
             
             # Check if product has an ID
-            product = order.get("product", {})
+            product = order['fields'].get("Product", {})
             item_id = None
-            for collection in config["catalog"]["hqd_collections"] + config["catalog"]["liquid_collections"]:
+            for collection in catalog.get("hqd_collections", []) + catalog.get("liquid_collections", []):
                 if collection["name"] == product.get("collection"):
-                    for item in collection["items"]:
+                    for item in collection.get("items", []):
                         if item["name"] == product.get("flavor"):
                             item_id = str(item["id"])
                             break
@@ -121,8 +153,8 @@ async def cmd_stats(message: types.Message, state: FSMContext):
             if qty > 0:
                 # Get item name
                 item_name = "Unknown Item"
-                for collection in config["catalog"]["hqd_collections"] + config["catalog"]["liquid_collections"]:
-                    for item in collection["items"]:
+                for collection in catalog.get("hqd_collections", []) + catalog.get("liquid_collections", []):
+                    for item in collection.get("items", []):
                         if str(item["id"]) == item_id:
                             item_name = item["name"]
                             break
@@ -172,7 +204,7 @@ async def show_locations(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(delivery_type="pickup")
     keyboard = [
         [InlineKeyboardButton(text=loc_data["name"], callback_data=f"loc_{loc_key}")]
-        for loc_key, loc_data in config["locations"].items()
+        for loc_key, loc_data in locations.items()
     ]
     keyboard.append(create_back_button())
     reply_markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
@@ -199,14 +231,6 @@ async def process_address(message: types.Message, state: FSMContext):
 
 async def show_collection_types(event, state: FSMContext):
     user_data = await state.get_data()
-    # Load existing config
-    try:
-        with open('config.json', 'r', encoding='utf-8') as f:
-            config = json.load(f)
-    except Exception as e:
-        logging.error(f"Failed to load config: {e}")
-        await event.answer("Ошибка при загрузке конфигурации.")
-        return
 
     # Build inventory
     inventory = build_inventory(config)
@@ -214,11 +238,11 @@ async def show_collection_types(event, state: FSMContext):
     keyboard = []
     location_key = user_data.get('location')
     # Collections based on type
-    collections = config["catalog"]["hqd_collections"] + config["catalog"]["liquid_collections"]
+    collections = catalog.get("hqd_collections", []) + catalog.get("liquid_collections", [])
     for collection in collections:
         # Check if any items in the collection are available
         is_available = False
-        for item in collection["items"]:
+        for item in collection.get("items", []):
             item_id = str(item["id"])
             # For pickup, check location-specific availability
             if user_data.get('delivery_type') == 'pickup':
@@ -252,7 +276,7 @@ async def show_collection_types(event, state: FSMContext):
         )
     else:
         message_text = (
-            f"📍 Выбранный магазин: {config['locations'][user_data['location']]['name']}\n\n"
+            f"📍 Выбранный магазин: {locations[user_data['location']]['name']}\n\n"
             f"Выберите тип продукции:"
         )
     
@@ -283,21 +307,12 @@ async def process_collection_type(callback: types.CallbackQuery, state: FSMConte
     collection_id = callback.data.replace('type_', '')
     await state.update_data(collection=collection_id)
 
-    # Load existing config
-    try:
-        with open('config.json', 'r', encoding='utf-8') as f:
-            config = json.load(f)
-    except Exception as e:
-        logging.error(f"Failed to load config: {e}")
-        await callback.answer("Ошибка при загрузке конфигурации.")
-        return
-
     # Build inventory
     inventory = build_inventory(config)
 
     # Get the appropriate collection
     user_data = await state.get_data()
-    collections = config["catalog"]["hqd_collections"] + config["catalog"]["liquid_collections"]
+    collections = catalog.get("hqd_collections", []) + catalog.get("liquid_collections", [])
     collection = next((c for c in collections if c["id"] == collection_id), None)
     if not collection:
         await callback.answer("Коллекция не найдена.", show_alert=True)
@@ -308,8 +323,8 @@ async def process_collection_type(callback: types.CallbackQuery, state: FSMConte
     keyboard = []
     location_key = user_data.get('location')
 
-    for item in collection["items"]:
-        item_id = str(item["id"])
+    for item in collection.get("items", []):
+        item_id = str(item['id'])
         # Check availability
         is_available = False
         if user_data.get('delivery_type') == 'pickup':
@@ -343,7 +358,7 @@ async def process_collection_type(callback: types.CallbackQuery, state: FSMConte
         )
     else:
         message_text = (
-            f"📍 Выбранный магазин: {config['locations'][user_data['location']]['name']}\n\n"
+            f"📍 Выбранный магазин: {locations[user_data['location']]['name']}\n\n"
             f"Выберите вкус из коллекции {collection['name']}:"
         )
 
@@ -364,32 +379,30 @@ async def send_follow_up_message(message: types.Message):
 
 @main_dp.callback_query(lambda c: c.data.startswith('aroma_'))
 async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
-    # Load existing orders from config.json
-    with open('config.json', 'r', encoding='utf-8') as f:
-        config = json.load(f)
-
+    # Load existing orders from Airtable
+    user_data = await state.get_data()
+    delivery_type = user_data.get('delivery_type', 'pickup')
+    location_info = ""
+    
     # Build inventory
     inventory = build_inventory(config)
 
-    user_data = await state.get_data()
-
-    delivery_type = user_data.get('delivery_type', 'pickup')
-    location_info = ""
     if delivery_type == "pickup":
         location_key = user_data['location']
-        location_info = f"📍 Магазин: {config['locations'][location_key]['name']}"
+        location_info = f"📍 Магазин: {locations[location_key]['name']}"
+        manager_name = locations[location_key]['manager']
     else:
         location_info = f"📍 Адрес доставки: {user_data['delivery_address']}"
 
     # Get collections based on type
-    collections = config["catalog"]["hqd_collections"] + config["catalog"]["liquid_collections"]
+    collections = catalog.get("hqd_collections", []) + catalog.get("liquid_collections", [])
     collection = next((c for c in collections if c["id"] == user_data['collection_type']), None)
     if not collection:
         await callback.answer("Коллекция не найдена.", show_alert=True)
         return
 
     aroma_id = callback.data.replace('aroma_', '')
-    aroma = next((item for item in collection["items"] if str(item["id"]) == aroma_id), None)
+    aroma = next((item for item in collection.get("items", []) if str(item["id"]) == aroma_id), None)
     if not aroma:
         await callback.answer("Аромат не найден.", show_alert=True)
         return
@@ -450,60 +463,37 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
     # Start sending follow-up message
     asyncio.create_task(send_follow_up_message(sent_message))
 
-    # Save order details to config.json with initial status
+    # Save order details to Airtable
     order_details = {
-        "order_id": order_id,
-        "date": current_time,
-        "customer": {
-            "username": username,
-            "fullname": user_fullname,
-            "location_info": location_info,
-        },
-        "product": {
-            "collection": collection['name'],
-            "flavor": aroma['name'],
-            "delivery_type": delivery_type,
-        },
-        "status": -1  # Initial status: -1 (Pending)
+           "Order ID": int(order_id),
+           "Date": current_time,
+           "User": f"https://t.me/{username}",
+           "Delivery Type": delivery_type,
+           "Location": locations[location_key]['name'] if delivery_type != 'delivery' else "",
+           "Delivery Address": user_data['delivery_address'] if delivery_type == 'delivery' else "", 
+           "Collection Name": collection['name'],
+           "Flavor Name": aroma['name'],
+           "Manager": manager_name,  # Added Manager Field
+           "Status": False,  # Initial status: unchecked (Pending)
     }
 
-    # Load existing orders from config.json
-    with open('config.json', 'r', encoding='utf-8') as f:
-        config = json.load(f)
-
-    # Append new order to the orders list
-    if "orders" not in config:
-        config["orders"] = []  # Initialize orders list if it doesn't exist
-    config["orders"].append(order_details)
-
-    # Save updated config back to the file
-    with open('config.json', 'w', encoding='utf-8') as f:
-        json.dump(config, f, ensure_ascii=False, indent=4)
-
-    # Create buttons for success and cancel
-    success_button = InlineKeyboardButton(text="✅ Success", callback_data=f"order_status_{order_id}_1")
-    cancel_button = InlineKeyboardButton(text="❌ Cancel", callback_data=f"order_status_{order_id}_0")
-    reply_markup = InlineKeyboardMarkup(inline_keyboard=[[success_button, cancel_button]])
-
-    # Send notification to the manager through manager bot
+    # Use the correct method to add the order to Airtable
     try:
-        sent_message = await manager_bot.send_message(config['manager_id'], manager_message, reply_markup=reply_markup)
-        logging.info('Message to manager sent!')
+        orders_airtable.insert(order_details)  # Correct method to insert a record
+        logging.info("Order details inserted into Airtable successfully.")
+    except Exception as e:
+        logging.error(f"Failed to insert order details into Airtable: {e}")
+        await callback.answer("Ошибка при сохранении заказа.", show_alert=True)
+        return
+
+    # Send notification to the manager through manager bot without buttons
+    try:
+        await manager_bot.send_message(manager_id, manager_message)
+        logging.info('Notification sent to manager.')
     except Exception as e:
         logging.error(f"Failed to send notification to manager: {e}")
-
-    # Update manager_message_id in order details
-    order_details["manager_message_id"] = sent_message.message_id
-
-    # Save updated config back to the file with manager_message_id
-    # First, find the order in the config and update it
-    for idx, order in enumerate(config["orders"]):
-        if order["order_id"] == order_id:
-            config["orders"][idx]["manager_message_id"] = sent_message.message_id
-            break
-
-    with open('config.json', 'w', encoding='utf-8') as f:
-        json.dump(config, f, ensure_ascii=False, indent=4)
+        await callback.answer("Не удалось уведомить менеджера.", show_alert=True)
+        return
 
     await state.clear()
 
@@ -540,39 +530,7 @@ async def process_back(callback: types.CallbackQuery, state: FSMContext):
         await cmd_start(callback.message, state)
 
 # Manager bot handlers
-@manager_dp.callback_query(lambda c: c.data.startswith('order_status_'))
-async def update_order_status(callback: types.CallbackQuery, state: FSMContext):
-    _, _, order_id, status = callback.data.split('_')
-    status = int(status)
-
-    logging.info(f"Updating order status: {order_id} to {status}")  # Log the status update
-
-    # Load existing orders from config.json
-    with open('config.json', 'r', encoding='utf-8') as f:
-        config = json.load(f)
-
-    # Update the status of the specific order
-    for idx, order in enumerate(config.get("orders", [])):
-        if order["order_id"] == order_id:
-            order["status"] = status  # Update the status
-
-            # Delete the manager's message if it exists
-            if "manager_message_id" in order:
-                try:
-                    await manager_bot.delete_message(config['manager_id'], order["manager_message_id"])
-                    logging.info('Manager message deleted.')
-                except Exception as e:
-                    logging.error(f"Failed to delete manager message: {e}")
-            config["orders"][idx] = order
-            break
-    else:
-        logging.warning(f"Order ID {order_id} not found in orders.")
-
-    # Save updated config back to the file 
-    with open('config.json', 'w', encoding='utf-8') as f:
-        json.dump(config, f, ensure_ascii=False, indent=4)
-
-    await callback.answer("Order status updated successfully.")
+# Removed the order_status handler as per instructions
 
 # Main function to run the bots
 async def main():

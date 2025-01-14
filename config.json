@@ -6,31 +6,38 @@
     "locations": {
         "stephansplatz": {
             "name": "Stephansplatz",
-            "inventory": {}
+            "inventory": {},
+            "manager": "Кныш"
         },
         "wien_mitte": {
             "name": "Wien Mitte",
-            "inventory": {}
+            "inventory": {},
+            "manager": "Кныш"
         },
         "vorgartenstrasse": {
             "name": "Vorgartenstraße",
-            "inventory": {}
+            "inventory": {},
+            "manager": "Влад"
         },
         "praterstern": {
             "name": "Praterstern",
-            "inventory": {}
+            "inventory": {},
+            "manager": "Влад"
         },
         "hauptbahnhof": {
             "name": "Hauptbahnhof",
-            "inventory": {}
+            "inventory": {},
+            "manager": "Артур"
         },
         "kagran": {
             "name": "Kagran",
-            "inventory": {}
+            "inventory": {},
+            "manager": "Лера"
         },
         "sankt_marx": {
             "name": "Sankt Marx",
-            "inventory": {}
+            "inventory": {},
+            "manager": "Миша"
         }
     },
     "postavka": [
@@ -207,7 +214,71 @@
                         "22": 1,
                         "23": 1
                     }
-                }
+                },
+                "wien_mitte":{
+                    "items": {
+                        "26": 1,
+                        "27": 1,
+                        "29": 1,
+                        "30": 1,
+                        "31": 1,
+                        "32": 1,
+                        "33": 1,
+                        "34": 1,
+                        "1": 1,
+                        "2": 1,
+                        "3": 1,
+                        "4": 1,
+                        "7": 1,
+                        "8": 1,
+                        "36": 1,
+                        "9": 1,
+                        "11": 1,
+                        "12": 1,
+                        "37": 1,
+                        "13": 1,
+                        "14": 1,
+                        "15": 1,
+                        "18": 1,
+                        "19": 1,
+                        "20": 1,
+                        "21": 1,
+                        "22": 1,
+                        "23": 1
+
+                }},
+                "praterstern":{
+                    "items": {
+                        "26": 1,
+                        "27": 1,
+                        "29": 1,
+                        "30": 1,
+                        "31": 1,
+                        "32": 1,
+                        "33": 1,
+                        "34": 1,
+                        "1": 1,
+                        "2": 1,
+                        "3": 1,
+                        "4": 1,
+                        "7": 1,
+                        "8": 1,
+                        "36": 1,
+                        "9": 1,
+                        "11": 1,
+                        "12": 1,
+                        "37": 1,
+                        "13": 1,
+                        "14": 1,
+                        "15": 1,
+                        "18": 1,
+                        "19": 1,
+                        "20": 1,
+                        "21": 1,
+                        "22": 1,
+                        "23": 1
+
+                }}
             }
         }
     ],
@@ -487,6 +558,5 @@
         "wholesale": "📦",
         "payment": "💳"
     },
-    "orders": [
-    ]
+    "orders": []
 }
