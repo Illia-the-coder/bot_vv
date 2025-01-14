@@ -13,7 +13,8 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputFile
 from airtable import Airtable  # Import Airtable client
 from dotenv import load_dotenv
-
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, FSInputFile
+# Remove InputFile from imports if it's no longer used elsewhere
 # Load environment variables
 load_dotenv()
 
@@ -65,6 +66,7 @@ class OrderStates(StatesGroup):
     greeting = State()
     choosing_delivery = State()
     choosing_location = State()
+    choosing_product_type = State()  # New State
     choosing_collection_type = State()
     choosing_collection = State()
     choosing_aroma = State()
@@ -227,7 +229,39 @@ async def request_address(callback: types.CallbackQuery, state: FSMContext):
 @main_dp.message(OrderStates.waiting_for_address)
 async def process_address(message: types.Message, state: FSMContext):
     await state.update_data(delivery_address=message.text)
-    await show_collection_types(message, state)
+    await show_product_type_selection(message, state)  # Updated to show product type selection
+
+async def show_product_type_selection(event, state: FSMContext):
+    keyboard = [
+        [
+            InlineKeyboardButton(text="📦 Устройство", callback_data="product_vape"),
+            InlineKeyboardButton(text="💧 Жидкость", callback_data="product_liquid"),
+        ]
+    ]
+    keyboard.append(create_back_button())
+    reply_markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
+    
+    if isinstance(event, types.CallbackQuery):
+        try:
+            await event.message.delete()
+        except Exception as e:
+            logging.error(f"Failed to delete message: {e}")
+        await event.message.answer(
+            "Выберите тип продукта:",
+            reply_markup=reply_markup
+        )
+    else:
+        await event.answer(
+            "Выберите тип продукта:",
+            reply_markup=reply_markup
+        )
+    await state.set_state(OrderStates.choosing_product_type)
+
+@main_dp.callback_query(lambda c: c.data in ["product_liquid", "product_vape"])
+async def process_product_type(callback: types.CallbackQuery, state: FSMContext):
+    product_type = "liquid" if callback.data == "product_liquid" else "vape"
+    await state.update_data(product_type=product_type)
+    await show_collection_types(callback, state)
 
 async def show_collection_types(event, state: FSMContext):
     user_data = await state.get_data()
@@ -237,8 +271,14 @@ async def show_collection_types(event, state: FSMContext):
 
     keyboard = []
     location_key = user_data.get('location')
-    # Collections based on type
-    collections = catalog.get("hqd_collections", []) + catalog.get("liquid_collections", [])
+    product_type = user_data.get('product_type')
+
+    # Filter collections based on product type
+    if product_type == "liquid":
+        collections = catalog.get("liquid_collections", [])
+    else:
+        collections = catalog.get("hqd_collections", [])
+
     for collection in collections:
         # Check if any items in the collection are available
         is_available = False
@@ -300,78 +340,96 @@ async def show_collection_types(event, state: FSMContext):
 async def process_location(callback: types.CallbackQuery, state: FSMContext):
     location_key = callback.data.replace('loc_', '')
     await state.update_data(location=location_key)
-    await show_collection_types(callback, state)
+    await show_product_type_selection(callback, state)  # Updated to show product type selection
 
-@main_dp.callback_query(lambda c: c.data.startswith('type_'))
-async def process_collection_type(callback: types.CallbackQuery, state: FSMContext):
-    collection_id = callback.data.replace('type_', '')
-    await state.update_data(collection=collection_id)
-
-    # Build inventory
-    inventory = build_inventory(config)
-
-    # Get the appropriate collection
-    user_data = await state.get_data()
-    collections = catalog.get("hqd_collections", []) + catalog.get("liquid_collections", [])
-    collection = next((c for c in collections if c["id"] == collection_id), None)
-    if not collection:
-        await callback.answer("Коллекция не найдена.", show_alert=True)
-        return
-
-    await state.update_data(collection_type=collection_id)
-
-    keyboard = []
-    location_key = user_data.get('location')
-
-    for item in collection.get("items", []):
-        item_id = str(item['id'])
-        # Check availability
-        is_available = False
-        if user_data.get('delivery_type') == 'pickup':
-            if location_key in inventory and item_id in inventory[location_key] and inventory[location_key][item_id] > 0:
-                is_available = True
+    @main_dp.callback_query(lambda c: c.data.startswith('type_'))
+    async def process_collection_type(callback: types.CallbackQuery, state: FSMContext):
+        collection_id = callback.data.replace('type_', '')
+        await state.update_data(collection=collection_id)
+    
+        # Build inventory
+        inventory = build_inventory(config)
+    
+        # Get the appropriate collection
+        user_data = await state.get_data()
+        product_type = user_data.get('product_type')
+        if product_type == "liquid":
+            collections = catalog.get("liquid_collections", [])
         else:
-            for loc in inventory.values():
-                if item_id in loc and loc[item_id] > 0:
+            collections = catalog.get("hqd_collections", [])
+        collection = next((c for c in collections if c["id"] == collection_id), None)
+        if not collection:
+            await callback.answer("Коллекция не найдена.", show_alert=True)
+            return
+    
+        await state.update_data(collection_type=collection_id)
+    
+        keyboard = []
+        location_key = user_data.get('location')
+    
+        for item in collection.get("items", []):
+            item_id = str(item['id'])
+            # Check availability
+            is_available = False
+            if user_data.get('delivery_type') == 'pickup':
+                if location_key in inventory and item_id in inventory[location_key] and inventory[location_key][item_id] > 0:
                     is_available = True
-                    break
-
-        # Add emoji based on availability
-        if is_available:
-            item_name = f"🟢 {item['name']}"
+            else:
+                for loc in inventory.values():
+                    if item_id in loc and loc[item_id] > 0:
+                        is_available = True
+                        break
+    
+            # Add emoji based on availability
+            if is_available:
+                item_name = f"🟢 {item['name']}"
+            else:
+                item_name = f"🔴 {item['name']}"
+    
+            keyboard.append([InlineKeyboardButton(
+                text=item_name,
+                callback_data=f"aroma_{item['id']}"
+            )])
+    
+        keyboard.append(create_back_button())
+        reply_markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
+    
+        # Check delivery type and construct appropriate message
+        if user_data.get('delivery_type') == 'delivery':
+            message_text = (
+                f"📍 Адрес доставки: {user_data['delivery_address']}\n\n"
+                f"Выберите вкус из коллекции {collection['name']}:"
+            )
         else:
-            item_name = f"🔴 {item['name']}"
+            message_text = (
+                f"📍 Выбранный магазин: {locations[user_data['location']]['name']}\n\n"
+                f"Выберите вкус из коллекции {collection['name']}:"
+            )
+    
+        try:
+            await callback.message.delete()
+        except Exception as e:
+            logging.error(f"Failed to delete message: {e}")
+    
+        image_path = f"images/{collection['id']}.jpeg"
+        print(image_path)
+        if not os.path.isfile(image_path):
+            logging.error(f"Image file not found: {image_path}")
+            await callback.answer("Изображение коллекции не найдено.", show_alert=True)
+            return
 
-        keyboard.append([InlineKeyboardButton(
-            text=item_name,
-            callback_data=f"aroma_{item['id']}"
-        )])
+        # Use FSInputFile to send a local file
+        photo = FSInputFile(image_path)
 
-    keyboard.append(create_back_button())
-    reply_markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
-
-    # Check delivery type and construct appropriate message
-    if user_data.get('delivery_type') == 'delivery':
-        message_text = (
-            f"📍 Адрес доставки: {user_data['delivery_address']}\n\n"
-            f"Выберите вкус из коллекции {collection['name']}:"
+        await main_bot.send_photo(
+            chat_id=callback.message.chat.id,
+            photo=photo,
+            caption=message_text,
+            reply_markup=reply_markup
         )
-    else:
-        message_text = (
-            f"📍 Выбранный магазин: {locations[user_data['location']]['name']}\n\n"
-            f"Выберите вкус из коллекции {collection['name']}:"
-        )
 
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        logging.error(f"Failed to delete message: {e}")
-    await callback.message.answer(
-        text=message_text,
-        reply_markup=reply_markup
-    )
+        await state.set_state(OrderStates.choosing_aroma)
 
-    await state.set_state(OrderStates.choosing_aroma)
 
 async def send_follow_up_message(message: types.Message):
     await asyncio.sleep(random.randint(1, 30))  # Random delay between 1-30 seconds
@@ -387,6 +445,8 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
     # Build inventory
     inventory = build_inventory(config)
 
+    product_type = user_data.get('product_type')
+
     if delivery_type == "pickup":
         location_key = user_data['location']
         location_info = f"📍 Магазин: {locations[location_key]['name']}"
@@ -395,7 +455,10 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
         location_info = f"📍 Адрес доставки: {user_data['delivery_address']}"
 
     # Get collections based on type
-    collections = catalog.get("hqd_collections", []) + catalog.get("liquid_collections", [])
+    if product_type == "liquid":
+        collections = catalog.get("liquid_collections", [])
+    else:
+        collections = catalog.get("hqd_collections", [])
     collection = next((c for c in collections if c["id"] == user_data['collection_type']), None)
     if not collection:
         await callback.answer("Коллекция не найдена.", show_alert=True)
@@ -424,7 +487,7 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
         await callback.answer("Извините, этот товар сейчас недоступен.", show_alert=True)
         return
 
-    current_time = datetime.now().strftime("%d.%m.%Y %H:%M")
+    current_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     username = callback.from_user.username or "Без username"
     user_fullname = callback.from_user.full_name or "Без имени"
 
@@ -469,7 +532,7 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
            "Date": current_time,
            "User": f"https://t.me/{username}",
            "Delivery Type": delivery_type,
-           "Location": locations[location_key]['name'] if delivery_type != 'delivery' else "",
+           "Location": locations[user_data['location']]['name'] if delivery_type != 'delivery' else "",
            "Delivery Address": user_data['delivery_address'] if delivery_type == 'delivery' else "", 
            "Collection Name": collection['name'],
            "Flavor Name": aroma['name'],
@@ -507,7 +570,7 @@ async def process_back(callback: types.CallbackQuery, state: FSMContext):
     except Exception as e:
         logging.error(f"Failed to delete message: {e}")
     
-    if current_state == OrderStates.choosing_collection_type.state:
+    if current_state == OrderStates.choosing_collection_type.state or current_state == OrderStates.choosing_product_type.state:
         # Go back to choosing delivery method
         await show_delivery_options(callback, state)
     
