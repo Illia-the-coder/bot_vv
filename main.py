@@ -545,6 +545,7 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
         orders_airtable.insert(order_details)  # Correct method to insert a record
         logging.info("Order details inserted into Airtable successfully.")
     except Exception as e:
+        orders_airtable.create(order_details)
         logging.error(f"Failed to insert order details into Airtable: {e}")
         await callback.answer("Ошибка при сохранении заказа.", show_alert=True)
         return
