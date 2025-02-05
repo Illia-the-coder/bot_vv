@@ -11,7 +11,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputFile, FSInputFile
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, FSInputFile
 from aiogram.utils.deep_linking import create_start_link
 from airtable import Airtable  # Airtable client
 from dotenv import load_dotenv
@@ -99,17 +99,26 @@ def generate_referral_code(length=6):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 async def register_user(user_id: int, username: str, referral_code: str = None):
+    """
+    Registers a new user and adds extra fields for referral discount management.
+    New columns:
+      - Discount Usage Count, Discount Usage Month, Bonus Awarded.
+    """
     existing_user = users_airtable.get_all(formula=f"{{User ID}} = '{user_id}'")
     if existing_user:
         return  # User already exists
     user_referral_code = generate_referral_code()
+    current_month = datetime.now().strftime("%Y-%m")  # For monthly discount usage tracking
     user_data = {
         "User ID": str(user_id),
         "Username": username,
         "Referral Code": user_referral_code,
         "Referrer Code": referral_code or "",
         "Total Referrals": 0,
-        "Discount": 0
+        "Discount": 0,
+        "Discount Usage Count": 0,
+        "Discount Usage Month": current_month,
+        "Bonus Awarded": False  # Flag ensures bonus is applied only once per referred user
     }
     try:
         users_airtable.insert(user_data)
@@ -129,6 +138,47 @@ def apply_discount(order_total, discount):
 async def send_follow_up_message(message: types.Message):
     await asyncio.sleep(random.randint(1, 30))
     await message.answer("🕐 Ваш заказ обрабатывается... Мы свяжемся с вами в течение 5 минут!")
+
+def update_referrer_bonus(referral_code: str):
+    """
+    Update the referrer's bonus when a referred friend makes their first order.
+    Increases Total Referrals and updates Discount accordingly.
+    For referrals <= 5: discount = Total Referrals * 10 (max 50%).
+    For referrals above 5: discount remains 50%, but each extra referral increases allowed monthly uses.
+    """
+    try:
+        referrers = users_airtable.get_all(formula=f"{{Referral Code}} = '{referral_code}'")
+        if not referrers:
+            return
+        referrer = referrers[0]
+        record_id = referrer['id']
+        total_referrals = int(referrer['fields'].get("Total Referrals", 0))
+        new_total = total_referrals + 1
+        new_discount = min(new_total * 10, 50)
+        update_data = {
+            "Total Referrals": new_total,
+            "Discount": new_discount
+        }
+        users_airtable.update(record_id, update_data)
+        logging.info(f"Referrer's bonus updated: {new_total} referrals, discount {new_discount}%")
+    except Exception as e:
+        logging.error(f"Failed to update referrer's bonus: {e}")
+
+def process_referral_bonus(user_id: int):
+    """
+    Checks if the ordering user was referred and, if so, updates the referrer's bonus.
+    Ensures that the bonus is applied only once for the referred user.
+    """
+    user_records = users_airtable.get_all(formula=f"{{User ID}} = '{user_id}'")
+    if user_records:
+        user = user_records[0]
+        fields = user.get('fields', {})
+        ref_code = fields.get("Referrer Code", "")
+        bonus_awarded = fields.get("Bonus Awarded", False)
+        if ref_code and not bonus_awarded:
+            update_referrer_bonus(ref_code)
+            # Mark bonus as awarded so that subsequent orders do not trigger another bonus
+            users_airtable.update(user['id'], {"Bonus Awarded": True})
 
 # ----------------------------
 # MAIN BOT HANDLERS
@@ -166,7 +216,8 @@ async def cmd_start(message: types.Message, state: FSMContext):
         "🎉 *Новая акция!*\n\n"
         "▪️ Приведи друга, который сделает заказ — получи *10% скидку*.\n"
         "▪️ Приведи второго друга — получи ещё *10% скидки*.\n"
-        "▪️ И так далее, до *50% скидки* за 5 друзей!"
+        "▪️ И так далее, до *50% скидки* за 5 друзей!\n"
+        "▪️ При накоплении 50% каждая дополнительная регистрация увеличивает количество использований скидки в месяц."
     )
     await message.answer(promotion_message, parse_mode='Markdown')
 
@@ -174,7 +225,6 @@ async def cmd_start(message: types.Message, state: FSMContext):
     main_menu_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🛍 Купить продукцию", callback_data="start_shopping")],
         [InlineKeyboardButton(text="📊 Мой Кабинет", callback_data="dashboard")],
-        [InlineKeyboardButton(text="🔗 Поделиться ссылкой", switch_inline_query=share_text)]
     ])
     await message.answer("Главное меню:", reply_markup=main_menu_keyboard)
     await state.set_state(OrderStates.greeting)
@@ -247,7 +297,6 @@ async def back_to_general(callback: types.CallbackQuery, state: FSMContext):
     main_menu_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🛍 Купить продукцию", callback_data="start_shopping")],
         [InlineKeyboardButton(text="📊 Мой Кабинет", callback_data="dashboard")],
-        [InlineKeyboardButton(text="🔗 Поделиться ссылкой", switch_inline_query=share_text)]
     ])
     try:
         await callback.message.edit_text("Главное меню:", reply_markup=main_menu_keyboard)
@@ -423,10 +472,6 @@ async def process_collection_type(callback: types.CallbackQuery, state: FSMConte
     )
     await state.set_state(OrderStates.choosing_aroma)
 
-# ----------------------------
-# DISCOUNT CONFIRMATION FLOW
-# ----------------------------
-
 @main_dp.callback_query(lambda c: c.data.startswith('aroma_'))
 async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
     """
@@ -508,7 +553,6 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
         return
     else:
         total_val = order_total
-    # If no discount is available, finalize the order immediately.
     order_id = str(abs(hash(current_time + username)))[-8:]
     manager_message = (
         f"🔔 *Заказ #{order_id}*\n"
@@ -567,10 +611,32 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
         logging.error(f"Failed to send notification to manager: {e}")
         await callback.answer("Не удалось уведомить менеджера.", show_alert=True)
         return
+    process_referral_bonus(callback.from_user.id)
     await state.clear()
 
 @main_dp.callback_query(lambda c: c.data == "apply_discount")
 async def apply_discount_handler(callback: types.CallbackQuery, state: FSMContext):
+    # Check discount monthly usage limit
+    user_records = users_airtable.get_all(formula=f"{{User ID}} = '{callback.from_user.id}'")
+    if user_records:
+        user_record = user_records[0]
+        fields = user_record.get('fields', {})
+        discount_value = int(fields.get("Discount", 0))
+        total_referrals = int(fields.get("Total Referrals", 0))
+        # Allowed uses: if discount < 50 then only 1 per month; if equals 50 then allowed uses = 1 + (Total Referrals - 5)
+        allowed_uses = 1 if discount_value < 50 else (1 + max(total_referrals - 5, 0))
+        usage_count = int(fields.get("Discount Usage Count", 0))
+        usage_month = fields.get("Discount Usage Month", "")
+        current_month = datetime.now().strftime("%Y-%m")
+        if usage_month != current_month:
+            usage_count = 0
+            users_airtable.update(user_record['id'], {"Discount Usage Count": 0, "Discount Usage Month": current_month})
+        if usage_count >= allowed_uses:
+            await callback.answer("Скидка уже была использована максимально допустимое количество раз в этом месяце.", show_alert=True)
+            return
+        # Increment usage count
+        new_usage_count = usage_count + 1
+        users_airtable.update(user_record['id'], {"Discount Usage Count": new_usage_count, "Discount Usage Month": current_month})
     data = await state.get_data()
     discount = data.get("discount", 0)
     order_total = data.get("order_total", 1000)
@@ -608,7 +674,7 @@ async def apply_discount_handler(callback: types.CallbackQuery, state: FSMContex
         "User": f"<https://t.me/{data.get('username')}>",
         "Delivery Type": data.get("delivery_type", ""),
         "Location": data.get("location_info").split(': ',1)[1] if data.get("delivery_type") != 'delivery' else "",
-        "Delivery Address": data.get("delivery_address", "") if data.get("delivery_type") == "delivery" else "",
+        "Delivery Address": data.get("delivery_address", "") if data.get("delivery_type") == 'delivery' else "",
         "Collection Name": data.get("collection")['name'],
         "Flavor Name": data.get("aroma_name"),
         "Manager": data.get("manager_name"),
@@ -624,15 +690,13 @@ async def apply_discount_handler(callback: types.CallbackQuery, state: FSMContex
         logging.error(f"Failed to insert order details into Airtable: {e}")
         await callback.answer("Ошибка при сохранении заказа.", show_alert=True)
         return
-    # Reset the user's discount to 0.
-    user_records = users_airtable.get_all(formula=f"{{User ID}} = '{callback.from_user.id}'")
-    if user_records and discount>0:
-        record_id = user_records[0]['id']
+    # If discount is less than 50, then its credit is consumed; for full discount, keep it available.
+    if discount < 50:
         try:
-            users_airtable.update(record_id, {"Discount": 0})
-            logging.info("User discount updated to 0 after applying discount.")
+            users_airtable.update(user_record['id'], {"Discount": 0, "Total Referrals": 0, "Bonus Awarded": False})
+            logging.info("User discount reset to 0 after applying discount (non-max discount).")
         except Exception as e:
-            logging.error(f"Failed to update user discount in Airtable: {e}")
+            logging.error(f"Failed to reset user discount in Airtable: {e}")
     try:
         await callback.message.delete()
     except Exception as e:
@@ -642,6 +706,7 @@ async def apply_discount_handler(callback: types.CallbackQuery, state: FSMContex
         await manager_bot.send_message(manager_id, manager_message, parse_mode="Markdown")
     except Exception as e:
         logging.error(f"Failed to send notification to manager: {e}")
+    process_referral_bonus(callback.from_user.id)
     await state.clear()
 
 @main_dp.callback_query(lambda c: c.data == "skip_discount")
@@ -650,7 +715,6 @@ async def skip_discount_handler(callback: types.CallbackQuery, state: FSMContext
     order_total = data.get("order_total", 1000)
     total_val = order_total
     
-    # Ensure current_time and username are not None
     current_time = data.get("current_time") or "default_time"
     username = data.get("username") or "default_username"
     
@@ -708,9 +772,8 @@ async def skip_discount_handler(callback: types.CallbackQuery, state: FSMContext
         await manager_bot.send_message(manager_id, manager_message, parse_mode="Markdown")
     except Exception as e:
         logging.error(f"Failed to send notification to manager: {e}")
-    
+    process_referral_bonus(callback.from_user.id)
     await state.clear()
-
 
 @main_dp.callback_query(lambda c: c.data == "back")
 async def process_back(callback: types.CallbackQuery, state: FSMContext):
@@ -735,7 +798,6 @@ async def main():
     logging.info(f"Main bot username set to: {main_bot.username}")
     await asyncio.gather(
         main_dp.start_polling(main_bot),
-        # Uncomment the following line if you wish to start polling for the manager bot:
         manager_dp.start_polling(manager_bot)
     )
 
