@@ -107,12 +107,14 @@ async def register_user(user_id: int, username: str, referral_code: str = None):
     existing_user = users_airtable.get_all(formula=f"{{User ID}} = '{user_id}'")
     if existing_user:
         return  # User already exists
-    user_referral_code = generate_referral_code()
-    current_month = datetime.now().strftime("%Y-%m")  # For monthly discount usage tracking
+
+    # Update date format to a full date that is acceptable by Airtable (if the field is of type date)
+    current_month = datetime.now().strftime("%Y-%m-%d")  # e.g., '2025-02-07'
+
     user_data = {
         "User ID": str(user_id),
         "Username": username,
-        "Referral Code": user_referral_code,
+        "Referral Code": generate_referral_code(),
         "Referrer Code": referral_code or "",
         "Total Referrals": 0,
         "Discount": 0,
@@ -127,7 +129,7 @@ async def register_user(user_id: int, username: str, referral_code: str = None):
         logging.error(f"Failed to insert user data into Airtable: {e}")
 
 async def get_user_discount(user_id: int):
-    user_records = users_airtable.get_all(formula=f"{{User ID}} = {user_id}")
+    user_records = users_airtable.get_all(formula=f"{{User ID}} = '{user_id}'")
     if user_records:
         return user_records[0]['fields'].get("Discount", 0)
     return 0
@@ -231,17 +233,23 @@ async def cmd_start(message: types.Message, state: FSMContext):
 
 @main_dp.message(Command("dashboard"))
 async def cmd_dashboard(message: types.Message):
-    user_records = users_airtable.get_all(formula=f"{{User ID}} = {message.from_user.id}")
+    user_records = users_airtable.get_all(formula=f"{{User ID}} = '{message.from_user.id}'")
     if not user_records:
-        await message.answer("Вы не зарегистрированы. Используйте /start для начала.")
-        return
+        await register_user(message.from_user.id, message.from_user.username or "NoUsername", None)
+        user_records = users_airtable.get_all(formula=f"{{User ID}} = '{message.from_user.id}'")
+        if not user_records:
+            await message.answer("Ошибка регистрации. Пожалуйста, используйте команду /start.")
+            return
     user = user_records[0]['fields']
     referral_code = user.get("Referral Code", "N/A")
     referrals = user.get("Total Referrals", 0)
     discount = user.get("Discount", 0)
 
     referred_users = users_airtable.get_all(formula=f"{{Referrer Code}} = '{referral_code}'")
-    referred_list = "\n".join([f"- @{record['fields'].get('Username', 'NoUsername')}" for record in referred_users]) or "Нет рефералов."
+    referred_list = "\n".join(
+        [f"- @{record['fields'].get('Username', 'NoUsername')}" for record in referred_users]
+    ) or "Нет рефералов."
+
     dashboard_message = (
         f"📊 *Мой Кабинет*\n\n"
         f"🔗 *Ваша реферальная ссылка:*\n"
@@ -250,24 +258,37 @@ async def cmd_dashboard(message: types.Message):
         f"💸 *Ваша скидка:* {discount}%\n\n"
         f"👥 *Список рефералов:*\n{referred_list}"
     )
+
     dashboard_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🔗 Поделиться кабинетом", switch_inline_query=f"Приглашаю в ELF BAR: https://t.me/{main_bot.username}?start={referral_code}")],
+        [InlineKeyboardButton(
+            text="🔗 Поделиться кабинетом",
+            switch_inline_query=f"Приглашаю в ELF BAR: https://t.me/{main_bot.username}?start={referral_code}"
+        )],
         [InlineKeyboardButton(text="↩️ В главное меню", callback_data="back_to_general")]
     ])
     await message.answer(dashboard_message, parse_mode="Markdown", reply_markup=dashboard_keyboard)
 
 @main_dp.callback_query(lambda c: c.data == "dashboard")
 async def show_dashboard(callback: types.CallbackQuery, state: FSMContext):
-    user_records = users_airtable.get_all(formula=f"{{User ID}} = {callback.from_user.id}")
+    # Ищем пользователя по строковому идентификатору
+    user_records = users_airtable.get_all(formula=f"{{User ID}} = '{callback.from_user.id}'")
     if not user_records:
-        await callback.message.answer("Вы не зарегистрированы. Используйте /start для начала.")
-        return
+        # Регистрируем пользователя, если он не найден
+        await register_user(callback.from_user.id, callback.from_user.username or "NoUsername", None)
+        user_records = users_airtable.get_all(formula=f"{{User ID}} = '{callback.from_user.id}'")
+        if not user_records:
+            await callback.message.answer("Ошибка регистрации. Пожалуйста, используйте команду /start.")
+            return
     user = user_records[0]['fields']
     referral_code = user.get("Referral Code", "N/A")
     referrals = user.get("Total Referrals", 0)
     discount = user.get("Discount", 0)
+
     referred_users = users_airtable.get_all(formula=f"{{Referrer Code}} = '{referral_code}'")
-    referred_list = "\n".join([f"- @{record['fields'].get('Username', 'NoUsername')}" for record in referred_users]) or "Нет рефералов."
+    referred_list = "\n".join(
+        [f"- @{record['fields'].get('Username', 'NoUsername')}" for record in referred_users]
+    ) or "Нет рефералов."
+
     dashboard_message = (
         f"📊 *Мой Кабинет*\n\n"
         f"🔗 *Ваша реферальная ссылка:*\n"
@@ -276,8 +297,12 @@ async def show_dashboard(callback: types.CallbackQuery, state: FSMContext):
         f"💸 *Ваша скидка:* {discount}%\n\n"
         f"👥 *Список рефералов:*\n{referred_list}"
     )
+
     dashboard_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🔗 Поделиться кабинетом", switch_inline_query=f"Приглашаю в ELF BAR: https://t.me/{main_bot.username}?start={referral_code}")],
+        [InlineKeyboardButton(
+            text="🔗 Поделиться кабинетом",
+            switch_inline_query=f"Приглашаю в ELF BAR: https://t.me/{main_bot.username}?start={referral_code}"
+        )],
         [InlineKeyboardButton(text="↩️ В главное меню", callback_data="back_to_general")]
     ])
     await callback.message.answer(dashboard_message, parse_mode="Markdown", reply_markup=dashboard_keyboard)
@@ -627,7 +652,7 @@ async def apply_discount_handler(callback: types.CallbackQuery, state: FSMContex
         allowed_uses = 1 if discount_value < 50 else (1 + max(total_referrals - 5, 0))
         usage_count = int(fields.get("Discount Usage Count", 0))
         usage_month = fields.get("Discount Usage Month", "")
-        current_month = datetime.now().strftime("%Y-%m")
+        current_month = datetime.now().strftime("%Y-%m-%d")
         if usage_month != current_month:
             usage_count = 0
             users_airtable.update(user_record['id'], {"Discount Usage Count": 0, "Discount Usage Month": current_month})
@@ -792,7 +817,7 @@ async def process_back(callback: types.CallbackQuery, state: FSMContext):
         await cmd_start(callback.message, state)
 
 async def main():
-    # Retrieve the main bot’s username for referral link generation.
+    # Retrieve the main bot's username for referral link generation.
     me = await main_bot.get_me()
     main_bot.username = me.username
     logging.info(f"Main bot username set to: {main_bot.username}")
