@@ -208,8 +208,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
 
     first_name = message.from_user.first_name or "Пользователь"
     welcome_text = (
-        f"{premium_emojis.get('flavors', '🍓')} *Добро пожаловать, {first_name}!*\n\n"
-        "Мы предлагаем широкий выбор продукции ELF BAR.\n"
+        f"{premium_emojis.get('flavors', '🍓')} *Добро пожаловать в магазин Vienna Vape!*\n\n"
         "Для продолжения нажмите кнопку ниже 👇"
     )
     await message.answer(welcome_text, parse_mode="Markdown")
@@ -223,7 +222,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
     )
     await message.answer(promotion_message, parse_mode='Markdown')
 
-    share_text = f"Приглашаю в ELF BAR: {referral_link}"
+    share_text = f"Приглашаю в магазин Vienna Vape: {referral_link}"
     main_menu_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🛍 Купить продукцию", callback_data="start_shopping")],
         [InlineKeyboardButton(text="📊 Мой Кабинет", callback_data="dashboard")],
@@ -262,7 +261,7 @@ async def cmd_dashboard(message: types.Message):
     dashboard_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
             text="🔗 Поделиться кабинетом",
-            switch_inline_query=f"Приглашаю в ELF BAR: https://t.me/{main_bot.username}?start={referral_code}"
+            switch_inline_query=f"Приглашаю в магазин Vienna Vape: https://t.me/{main_bot.username}?start={referral_code}"
         )],
         [InlineKeyboardButton(text="↩️ В главное меню", callback_data="back_to_general")]
     ])
@@ -301,7 +300,7 @@ async def show_dashboard(callback: types.CallbackQuery, state: FSMContext):
     dashboard_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
             text="🔗 Поделиться кабинетом",
-            switch_inline_query=f"Приглашаю в ELF BAR: https://t.me/{main_bot.username}?start={referral_code}"
+            switch_inline_query=f"Приглашаю в магазин Vienna Vape: https://t.me/{main_bot.username}?start={referral_code}"
         )],
         [InlineKeyboardButton(text="↩️ В главное меню", callback_data="back_to_general")]
     ])
@@ -318,7 +317,7 @@ async def back_to_general(callback: types.CallbackQuery, state: FSMContext):
         referral_code = user_records[0]['fields'].get("Referral Code", "")
     else:
         referral_code = ""
-    share_text = f"Приглашаю в ELF BAR: https://t.me/{main_bot.username}?start={referral_code}"
+    share_text = f"Приглашаю в магазин Vienna Vape: https://t.me/{main_bot.username}?start={referral_code}"
     main_menu_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🛍 Купить продукцию", callback_data="start_shopping")],
         [InlineKeyboardButton(text="📊 Мой Кабинет", callback_data="dashboard")],
