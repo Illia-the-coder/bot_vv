@@ -63,6 +63,27 @@ logging.basicConfig(
 main_dp = Dispatcher()
 manager_dp = Dispatcher()
 
+
+def get_item_price(item_id: str, catalog: dict) -> float:
+    """
+    Retrieve the price of an item based on its ID from the catalog.
+    """
+    item_id = str(item_id)
+    # Check in hqd_collections
+    for collection in catalog.get("hqd_collections", []):
+        for item in collection.get("items", []):
+            if str(item["id"]) == item_id:
+                return collection["price"]  # Return the price of the collection
+
+    # Check in liquid_collections
+    for collection in catalog.get("liquid_collections", []):
+        for item in collection.get("items", []):
+            if str(item["id"]) == item_id:
+                return collection["price"]  # Return the price of the collection
+
+    # If item not found, return 0 or raise an error
+    logging.error(f"Item with ID {item_id} not found in catalog.")
+    return 0
 # Define FSM states
 class OrderStates(StatesGroup):
     greeting = State()
@@ -551,7 +572,9 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
         f"📦 *Коллекция:* {collection['name']}\n"
         f"🎨 *Вкус:* {aroma['name']}\n\n"
     )
-    order_total = 1000  # Example base total
+    print(aroma)
+    item_id = aroma['id']  # Assuming you have the item ID from the selected aroma
+    order_total = get_item_price(item_id, catalog)  # Get the price from the catalog
     discount = await get_user_discount(callback.from_user.id)
     if discount > 0:
         discount_prompt = f"У вас есть скидка {discount}%. Хотите применить её к вашему заказу?"
