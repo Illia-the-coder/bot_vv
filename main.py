@@ -652,7 +652,8 @@ async def process_aroma(callback: types.CallbackQuery, state: FSMContext):
         await callback.answer("Ошибка при сохранении заказа.", show_alert=True)
         return
     try:
-        await manager_bot.send_message(manager_id, manager_message, parse_mode="Markdown")
+        for manager_id in config.get("manager_id", []):
+            await manager_bot.send_message(manager_id, manager_message, parse_mode="Markdown")
         logging.info('Notification sent to manager.')
     except Exception as e:
         logging.error(f"Failed to send notification to manager: {e}")
@@ -752,7 +753,7 @@ async def apply_discount_handler(callback: types.CallbackQuery, state: FSMContex
     try:
         await manager_bot.send_message(manager_id, manager_message, parse_mode="Markdown")
     except Exception as e:
-        logging.error(f"Failed to send notification to manager: {e}")
+        await callback.answer("Не удалось уведомить менеджера.", show_alert=True)
     process_referral_bonus(callback.from_user.id)
     await state.clear()
 
